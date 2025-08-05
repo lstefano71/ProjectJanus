@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <Version>$(GitVersion_NuGetVersion)</Version>
+  </PropertyGroup>
+  <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" Condition="Exists('Sdk.props')" />
+</Project>
