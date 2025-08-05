@@ -36,7 +36,8 @@ public class EventLogScannerService
     /// <returns>List of EventLogEntry objects found.</returns>
     public async Task<IReadOnlyList<EventLogEntry>> ScanAllLogsAsync(
         DateTime timestamp,
-        TimeSpan window,
+        TimeSpan before,
+        TimeSpan after,
         IProgress<(string status, int eventCount)>? progress,
         CancellationToken cancellationToken)
     {
@@ -45,8 +46,8 @@ public class EventLogScannerService
         var entries = new List<EventLogEntry>();
         var tasks = new List<Task>();
         var eventCount = 0;
-        var from = timestamp - window;
-        var to = timestamp + window;
+        var from = (timestamp - before).ToUniversalTime();
+        var to = (timestamp + after).ToUniversalTime();
 
         foreach (var logName in logNames)
         {
@@ -55,9 +56,9 @@ public class EventLogScannerService
                 try
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    progress?.Report(($"Scanning: {logName}", eventCount));
-                    var query = $"<QueryList><Query Id='0' Path='{logName}'><Select Path='{logName}'>*[System[TimeCreated[@SystemTime>='{from:O}' and @SystemTime<='{to:O}']]]</Select></Query></QueryList>";
-                    using var reader = new EventLogReader(new EventLogQuery(logName, PathType.LogName, query));
+                    var xpath = $"*[System[TimeCreated[@SystemTime>='{from:O}' and @SystemTime<='{to:O}']]]";
+                    progress?.Report(($"Scanning: {logName} | Query: {xpath}", eventCount));
+                    using var reader = new EventLogReader(new EventLogQuery(logName, PathType.LogName, xpath));
                     for (EventRecord? record = reader.ReadEvent(); record is not null; record = reader.ReadEvent())
                     {
                         cancellationToken.ThrowIfCancellationRequested();
@@ -77,12 +78,17 @@ public class EventLogScannerService
                             entries.Add(entry);
                             eventCount++;
                         }
-                        progress?.Report(($"Scanning: {logName}", eventCount));
+                        progress?.Report(($"Scanning: {logName} | {eventCount} events", eventCount));
                     }
                 }
-                catch (EventLogException)
+                catch (EventLogException ex)
                 {
-                    // Log is corrupted or inaccessible, skip
+                    progress?.Report(($"Error scanning {logName}: {ex.Message}", eventCount));
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    progress?.Report(($"Access denied to {logName}: {ex.Message}", eventCount));
+                    // Skip this log and continue
                 }
             }, cancellationToken));
         }

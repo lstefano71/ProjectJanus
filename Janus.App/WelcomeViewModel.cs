@@ -6,18 +6,20 @@ namespace Janus.App;
 
 public class WelcomeViewModel
 {
+    private readonly Action<object> setCurrentView;
     public ICommand NewScanCommand { get; }
     public ICommand OpenSnapshotCommand { get; }
 
-    public WelcomeViewModel()
+    public WelcomeViewModel(Action<object> setCurrentView)
     {
+        this.setCurrentView = setCurrentView;
         NewScanCommand = new RelayCommand(_ => StartNewScan());
         OpenSnapshotCommand = new RelayCommand(_ => OpenSnapshot());
     }
 
     private void StartNewScan()
     {
-        // Navigation logic to LiveScanView
+        setCurrentView?.Invoke(new LiveScanViewModel());
     }
 
     private async void OpenSnapshot()

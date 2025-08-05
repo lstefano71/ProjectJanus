@@ -14,7 +14,12 @@ public class MainWindowViewModel : INotifyPropertyChanged
 
     public MainWindowViewModel()
     {
-        CurrentView = new WelcomeViewModel();
+        CurrentView = new WelcomeViewModel(SetCurrentView);
+    }
+
+    public void SetCurrentView(object view)
+    {
+        CurrentView = view;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

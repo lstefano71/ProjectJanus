@@ -12,6 +12,9 @@
         <DataTemplate DataType="{x:Type local:WelcomeViewModel}">
             <local:WelcomeView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type local:LiveScanViewModel}">
+            <local:LiveScanView/>
+        </DataTemplate>
     </Window.Resources>
     <DockPanel Grid.Row="1"
             LastChildFill="True">
