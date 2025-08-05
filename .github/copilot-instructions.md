@@ -7,10 +7,15 @@ Project Janus is a Windows desktop diagnostic tool for analyzing system events a
 - **Product Requirements Document:** `docs/prd/projectjanus.md`
 - **To-Do List:** `docs/todo.md`
 
-## Instructions to AI agents
-- never guess an API: use the Context7 tool to explore APIs and their capabilities.
-- do not communicate via comments in the code: use clear, descriptive names and documentation files instead.
-- always follow the conventions and patterns outlined below.
+### Instrusctions for AI Agents
+- **API Exploration:** Never guess an API. Use the Context7 tool to explore APIs and their capabilities.
+- **Code Comments:** Do not communicate via comments in the code. Use clear, descriptive names and documentation files instead.
+- **Conventions and Patterns:** Always follow the conventions and patterns outlined in this document.
+- **Documentation:** Refer to the provided documentation files for requirements and implementation phases.
+- **Examples:** Use the provided examples as a guide for implementing features, especially for event log scanning and MVVM patterns.
+- **References:** Always refer to `docs/prd/ProjectJanus.md` and `docs/TODO.md` for requirements and implementation phases.
+- **Clarifications:** If any conventions or workflows are unclear, ask for clarification or examples from the maintainers.
+- **Documentatino:** keep the documentation up to date with any changes in architecture or conventions.
 
 
 ## Architecture & Structure

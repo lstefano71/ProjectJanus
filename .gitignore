@@ -1,0 +1,46 @@
+# .gitignore for Project Janus (.NET, WPF/WinUI, EF Core)
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+
+# NuGet packages
+*.nupkg
+# NuGet restore
+packages/
+# Dotnet restore
+project.lock.json
+project.fragment.lock.json
+
+# SQLite database files
+*.db
+*.sqlite
+*.janus
+
+# Logs
+*.log
+
+# OS generated files
+Thumbs.db
+Desktop.ini
+
+# Others
+_ReSharper*/
+.idea/
+*.resharper
+*.DotSettings
+
+# Rider
+.idea/
+*.sln.iml
+
+# Test results
+TestResults/
