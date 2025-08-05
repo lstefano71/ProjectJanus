@@ -12,6 +12,8 @@ public class MainWindowViewModel : INotifyPropertyChanged
         set { currentView = value; OnPropertyChanged(); }
     }
 
+    public string Title { get; } = $"Project Janus v{ThisAssembly.AssemblyInformationalVersion} ({ThisAssembly.GitCommitId})";
+
     public MainWindowViewModel()
     {
         CurrentView = new WelcomeViewModel(SetCurrentView);

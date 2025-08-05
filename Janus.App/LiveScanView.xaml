@@ -9,14 +9,16 @@
     <UserControl.Resources>
         <local:StringNotEmptyToVisibleConverter x:Key="StringNotEmptyToVisible" />
         <local:FirstLineConverter x:Key="FirstLineConverter" />
+        <local:LogLevelSelectedConverter x:Key="LogLevelSelectedConverter" />
     </UserControl.Resources>
     <Grid Margin="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
             <TextBlock Text="Timestamp of Interest:" VerticalAlignment="Center" Margin="0,0,10,0"/>
@@ -34,19 +36,67 @@
             <Button Content="Scan Events" Command="{Binding ScanCommand}" Width="120"/>
             <Button Content="Cancel" Command="{Binding CancelCommand}" Width="80" Margin="10,0,0,0"/>
         </StackPanel>
-        <TextBlock Grid.Row="3" Text="{Binding ScanStatus}" FontWeight="Bold" Foreground="DarkBlue"/>
-        <Grid Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <!-- Filters for DataGrid -->
+        <!-- Filters for DataGrid -->
+        <StackPanel Orientation="Horizontal" Grid.Row="3" Margin="0,0,0,10" VerticalAlignment="Center" DataContext="{Binding}">
+            <TextBlock Text="Log Level:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <!-- Multi-select ComboBox for log levels -->
+            <ComboBox Width="180" Height="28" IsEditable="False" HorizontalAlignment="Left" VerticalAlignment="Center"
+                      ItemsSource="{Binding LogLevels}"
+                      IsDropDownOpen="{Binding IsLogLevelPopupOpen, Mode=TwoWay}"
+                      StaysOpenOnEdit="True"
+                      Padding="0">
+                <ComboBox.Template>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton IsChecked="{Binding IsLogLevelPopupOpen, Mode=TwoWay}" Focusable="False" Background="White" BorderBrush="#888" BorderThickness="1" Height="28" VerticalAlignment="Center">
+                                <ContentPresenter Content="{Binding SelectedLogLevelsDisplay}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                            </ToggleButton>
+                            <Popup Placement="Bottom" IsOpen="{Binding IsLogLevelPopupOpen, Mode=TwoWay}" StaysOpen="False">
+                                <Border Background="White" BorderBrush="#888" BorderThickness="1" Padding="4">
+                                    <ItemsControl ItemsSource="{Binding LogLevels}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Content="{Binding}"
+                                                          IsChecked="{Binding DataContext.SelectedLogLevels, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource LogLevelSelectedConverter}, ConverterParameter={x:Null}}"
+                                                          Command="{Binding DataContext.ToggleLogLevelCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                          CommandParameter="{Binding}"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </ComboBox.Template>
+            </ComboBox>
+            <TextBlock Text="Search:" VerticalAlignment="Center" Margin="20,0,10,0"/>
+            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="180"/>
+            <CheckBox Content="Group by Log" IsChecked="{Binding IsGroupingEnabled}" Margin="20,0,0,0" VerticalAlignment="Center"/>
+        </StackPanel>
+    <!-- Progress/Status above DataGrid -->
+    <TextBlock Grid.Row="4" Text="{Binding ScanStatus}" FontWeight="Bold" Foreground="DarkBlue" Margin="0,0,0,10"/>
+    <Grid Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="6"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <DataGrid Grid.Row="0"
-                      ItemsSource="{Binding Events}"
+                      ItemsSource="{Binding EventsView}"
                       SelectedItem="{Binding SelectedEvent, Mode=TwoWay}"
                       AutoGenerateColumns="False"
                       Margin="0,0,0,0"
                       RowHeight="28">
+                <DataGrid.GroupStyle>
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock FontWeight="Bold" FontSize="14" Foreground="DarkSlateGray" Text="{Binding Name}" Margin="4,0,0,0"/>
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </DataGrid.GroupStyle>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Time" Binding="{Binding TimeCreated}" Width="150"/>
                     <DataGridTextColumn Header="Log" Binding="{Binding LogName}" Width="120"/>
