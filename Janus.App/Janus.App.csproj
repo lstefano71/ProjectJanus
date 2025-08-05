@@ -9,6 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Page Remove="Resources\App.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Include="Resources\App.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.132">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

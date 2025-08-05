@@ -33,7 +33,6 @@ public class EventLogEntryDisplay
 public class ResultsViewModel : INotifyPropertyChanged
 {
     public ObservableCollection<EventLogEntryDisplay> Events { get; } = new();
-    public ObservableCollection<EventLogEntryDisplay> FilteredEvents { get; } = new();
     public ICollectionView EventsView { get; }
 
     // Log level filter options
@@ -78,11 +77,28 @@ public class ResultsViewModel : INotifyPropertyChanged
         get => isGroupingEnabled;
         set { isGroupingEnabled = value; OnPropertyChanged(); UpdateGrouping(); }
     }
+    private bool isGroupByLevelEnabled;
+    public bool IsGroupByLevelEnabled
+    {
+        get => isGroupByLevelEnabled;
+        set
+        {
+            if (isGroupByLevelEnabled != value)
+            {
+                isGroupByLevelEnabled = value;
+                if (value) IsGroupingEnabled = false; // mutually exclusive
+                OnPropertyChanged();
+                UpdateGrouping();
+            }
+        }
+    }
     private void UpdateGrouping()
     {
         EventsView.GroupDescriptions.Clear();
         if (IsGroupingEnabled)
             EventsView.GroupDescriptions.Add(new PropertyGroupDescription("LogName"));
+        else if (IsGroupByLevelEnabled)
+            EventsView.GroupDescriptions.Add(new PropertyGroupDescription("Level"));
     }
 
     // Progress/Status
