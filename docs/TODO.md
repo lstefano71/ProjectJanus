@@ -1,37 +1,47 @@
+
 ### Phase 1: Project Foundation & Core Data Model
 
--   [ ] **1.1:** Set up solution structure: `ProjectJanus.sln`.
--   [ ] **1.2:** Create main application project (WPF or WinUI): `Janus.App`.
--   [ ] **1.3:** Create class library for data models: `Janus.Core`.
--   [ ] **1.4:** Add NuGet packages to `Janus.Core`: `Microsoft.EntityFrameworkCore.Sqlite`.
--   [ ] **1.5:** Define data model class `EventLogEntry.cs` in `Janus.Core`.
--   [ ] **1.6:** Define data model class `ScanSession.cs` in `Janus.Core`.
--   [ ] **1.7:** Implement EF Core context `EventSnapshotDbContext.cs` in `Janus.Core`.
+-   [x] **1.1:** Set up solution structure: `ProjectJanus.sln`.
+-   [x] **1.2:** Create main application project (WPF or WinUI): `Janus.App`.
+-   [x] **1.3:** Create class library for data models: `Janus.Core`.
+-   [x] **1.4:** Add NuGet packages to `Janus.Core`: `Microsoft.EntityFrameworkCore.Sqlite`.
+-   [x] **1.5:** Define data model class `EventLogEntry.cs` in `Janus.Core`.
+-   [x] **1.6:** Define data model class `ScanSession.cs` in `Janus.Core`.
+-   [x] **1.7:** Implement EF Core context `EventSnapshotDbContext.cs` in `Janus.Core`.
 -   [ ] **1.8:** Add `app.manifest` to `Janus.App` and configure `requestedExecutionLevel` to `requireAdministrator`.
--   [ ] **1.9:** Initialize a Git repository and create a standard `.gitignore` file for .NET projects.
+-   [x] **1.9:** Initialize a Git repository and create a standard `.gitignore` file for .NET projects.
 
 ### Phase 2: Live Event Scanning Engine
 
--   [ ] **2.1:** Create service class `EventLogScannerService.cs` in `Janus.App`.
--   [ ] **2.2:** Implement method to retrieve all system log names using `EventLogSession`.
--   [ ] **2.3:** Implement the core `ScanAllLogsAsync` method which accepts timestamp, time window, `IProgress<T>`, and `CancellationToken`.
--   [ ] **2.4:** Implement XPath query logic within `ScanAllLogsAsync` to filter events by `TimeCreated`.
--   [ ] **2.5:** Parallelize the querying of individual event logs for performance.
--   [ ] **2.6:** Implement robust `try-catch (EventLogException)` for each log query to handle corrupted logs.
--   [ ] **2.7:** Implement cancellation logic throughout the async scan process using the `CancellationToken`.
--   [ ] **2.8:** Implement progress reporting for scan status (e.g., "Scanning: System") and total events found.
+   [x] **2.1:** Create service class `EventLogScannerService.cs` in `Janus.App`.
+   [x] **2.2:** Implement method to retrieve all system log names using `EventLogSession`.
+   [x] **2.3:** Implement the core `ScanAllLogsAsync` method which accepts timestamp, time window, `IProgress<T>`, and `CancellationToken`.
+   [~] **2.4:** Implement XPath query logic within `ScanAllLogsAsync` to filter events by `TimeCreated`. // Filtering is done in C#, not via XPath query.
+   [~] **2.5:** Parallelize the querying of individual event logs for performance. // Log queries are processed sequentially, not in parallel.
+   [x] **2.6:** Implement robust `try-catch (EventLogException)` for each log query to handle corrupted logs.
+   [x] **2.7:** Implement cancellation logic throughout the async scan process using the `CancellationToken`.
+   [x] **2.8:** Implement progress reporting for scan status (e.g., "Scanning: System") and total events found.
 
 ### Phase 3: UI - Live Scan & Control
 
--   [ ] **3.1:** Design the application's main shell window (`MainWindow.xaml`).
--   [ ] **3.2:** Create a `LiveScanView.xaml` UserControl for the initial scan configuration screen.
--   [ ] **3.3:** Add UI controls to `LiveScanView`: `DatePicker`, time control, "Now" button, numeric controls for time window.
--   [ ] **3.4:** Add "Scan" and "Cancel" buttons to `LiveScanView`.
--   [ ] **3.5:** Add a status bar area to the UI for progress text and event count.
--   [ ] **3.6:** Create `LiveScanViewModel.cs` and bind it to `LiveScanView`.
--   [ ] **3.7:** Implement the "Scan" command in the ViewModel to invoke the `EventLogScannerService`.
--   [ ] **3.8:** Implement the "Cancel" command to trigger the `CancellationTokenSource`.
--   [ ] **3.9:** Implement the "Now" button logic to populate the timestamp controls with the current system time.
+-   [-] **3.1:** Design the application's main shell window (`MainWindow.xaml`).
+        <!-- MainWindow.xaml.cs exists; shell window class is present. UI design details not confirmed. -->
+-   [-] **3.2:** Create a `LiveScanView.xaml` UserControl for the initial scan configuration screen.
+        <!-- LiveScanView.xaml not found; not started. -->
+-   [-] **3.3:** Add UI controls to `LiveScanView`: `DatePicker`, time control, "Now" button, numeric controls for time window.
+        <!-- LiveScanView.xaml not found; controls not implemented. -->
+-   [-] **3.4:** Add "Scan" and "Cancel" buttons to `LiveScanView`.
+        <!-- LiveScanView.xaml not found; buttons not implemented. -->
+-   [-] **3.5:** Add a status bar area to the UI for progress text and event count.
+        <!-- MainWindow.xaml.cs exists; status bar implementation not confirmed. -->
+-   [-] **3.6:** Create `LiveScanViewModel.cs` and bind it to `LiveScanView`.
+        <!-- LiveScanViewModel.cs not found; not started. -->
+-   [-] **3.7:** Implement the "Scan" command in the ViewModel to invoke the `EventLogScannerService`.
+        <!-- MainViewModel.cs contains RelayCommand methods; specific Scan command implementation not confirmed. -->
+-   [-] **3.8:** Implement the "Cancel" command to trigger the `CancellationTokenSource`.
+        <!-- MainViewModel.cs contains CanCancelScan logic; full Cancel command implementation not confirmed. -->
+-   [-] **3.9:** Implement the "Now" button logic to populate the timestamp controls with the current system time.
+        <!-- "Now" button logic not found; not implemented. -->
 
 ### Phase 4: UI - Results Display & Interaction
 
