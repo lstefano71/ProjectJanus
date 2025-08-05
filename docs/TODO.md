@@ -16,7 +16,7 @@
    [x] **2.1:** Create service class `EventLogScannerService.cs` in `Janus.App`.
    [x] **2.2:** Implement method to retrieve all system log names using `EventLogSession`.
    [x] **2.3:** Implement the core `ScanAllLogsAsync` method which accepts timestamp, time window, `IProgress<T>`, and `CancellationToken`.
-   [~] **2.4:** Implement XPath query logic within `ScanAllLogsAsync` to filter events by `TimeCreated`. // Filtering is done in C#, not via XPath query.
+   [x] **2.4:** Implement XPath query logic within `ScanAllLogsAsync` to filter events by `TimeCreated`.
    [~] **2.5:** Parallelize the querying of individual event logs for performance. // Log queries are processed sequentially, not in parallel.
    [x] **2.6:** Implement robust `try-catch (EventLogException)` for each log query to handle corrupted logs.
    [x] **2.7:** Implement cancellation logic throughout the async scan process using the `CancellationToken`.

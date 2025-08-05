@@ -24,7 +24,10 @@ public class EventLogService
                 cancellationToken.ThrowIfCancellationRequested();
                 progress.Report($"Scanning {logName}...");
 
-                var query = new EventLogQuery(logName, PathType.LogName, "*")
+                string startIso = startTime.ToUniversalTime().ToString("o");
+                string endIso = endTime.ToUniversalTime().ToString("o");
+                string xpath = $"*[System[TimeCreated[@SystemTime>='{startIso}' and @SystemTime<='{endIso}']]]";
+                var query = new EventLogQuery(logName, PathType.LogName, xpath)
                 {
                     ReverseDirection = true,
                     TolerateQueryErrors = true
@@ -38,19 +41,16 @@ public class EventLogService
                         {
                             cancellationToken.ThrowIfCancellationRequested();
 
-                            if (record.TimeCreated >= startTime && record.TimeCreated <= endTime)
+                            entries.Add(new ScannedEvent
                             {
-                                entries.Add(new ScannedEvent
-                                {
-                                    TimeCreated = record.TimeCreated,
-                                    EventId = record.Id,
-                                    LevelDisplayName = record.LevelDisplayName,
-                                    ProviderName = record.ProviderName,
-                                    TaskDisplayName = record.TaskDisplayName,
-                                    Message = record.FormatDescription(),
-                                    LogName = logName
-                                });
-                            }
+                                TimeCreated = record.TimeCreated,
+                                EventId = record.Id,
+                                LevelDisplayName = record.LevelDisplayName,
+                                ProviderName = record.ProviderName,
+                                TaskDisplayName = record.TaskDisplayName,
+                                Message = record.FormatDescription(),
+                                LogName = logName
+                            });
                         }
                     }
                 }
