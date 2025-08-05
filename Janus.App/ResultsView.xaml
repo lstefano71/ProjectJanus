@@ -10,40 +10,64 @@
     <local:StringNotEmptyToVisibleConverter x:Key="StringNotEmptyToVisible" />
     <local:FirstLineConverter x:Key="FirstLineConverter" />
     <local:LogLevelSelectedConverter x:Key="LogLevelSelectedConverter" />
+    <local:BooleanToGridLengthConverter x:Key="BoolToGridLength" ExpandedWidth="220" CollapsedWidth="0" />
   </UserControl.Resources>
   <Grid Margin="20">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="32"/>
+      <ColumnDefinition Width="{Binding IsExpanded, ElementName=MetadataExpander, Converter={StaticResource BoolToGridLength}}"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
-    <!-- Metadata Panel -->
-    <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,0">
-      <TextBlock Text="Machine: " FontWeight="Bold"/>
-      <TextBlock Text="{Binding Metadata.MachineName}" Margin="5,0,10,0"/>
-      <TextBlock Text="Notes: " FontWeight="Bold"/>
-      <TextBlock Text="{Binding Metadata.UserNotes}" Margin="5,0,10,0"/>
-      <TextBlock Text="Scan Timestamp: " FontWeight="Bold"/>
-      <TextBlock Text="{Binding MetadataTimestampLocal}" Margin="5,0,10,0"/>
-      <TextBlock Text="Window: " FontWeight="Bold"/>
-      <TextBlock Text="{Binding Metadata.Window}" Margin="5,0,10,0"/>
-      <TextBlock Text="Snapshot Created: " FontWeight="Bold"/>
-      <TextBlock Text="{Binding MetadataSnapshotCreatedLocal}" Margin="5,0,10,0"/>
-      <TextBlock Text="Minutes Before: " FontWeight="Bold"/>
-      <TextBlock Text="{Binding Metadata.MinutesBefore}" Margin="5,0,10,0"/>
-      <TextBlock Text="Minutes After: " FontWeight="Bold"/>
-      <TextBlock Text="{Binding Metadata.MinutesAfter}" Margin="5,0,10,0"/>
+    <!-- Expander Header Only -->
+    <Expander x:Name="MetadataExpander" Grid.Column="0" Grid.Row="0" Grid.RowSpan="4" IsExpanded="False" VerticalAlignment="Top" Margin="0,0,0,0" ExpandDirection="Right">
+      <Expander.Header>
+        <TextBlock Text="Metadata" FontWeight="Bold">
+          <TextBlock.LayoutTransform>
+            <RotateTransform Angle="90" />
+          </TextBlock.LayoutTransform>
+        </TextBlock>
+      </Expander.Header>
+    </Expander>
+    <!-- Metadata Panel Content -->
+    <StackPanel Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" Margin="0,0,20,0">
+      <TextBlock Text="Machine:" FontWeight="Bold" Margin="0,8,0,0"/>
+      <TextBlock Text="{Binding Metadata.MachineName}" Margin="0,0,0,8"/>
+      <TextBlock Text="Notes:" FontWeight="Bold"/>
+      <TextBlock Text="{Binding Metadata.UserNotes}" Margin="0,0,0,8"/>
+      <TextBlock Text="Scan Timestamp:" FontWeight="Bold"/>
+      <TextBlock Text="{Binding MetadataTimestampLocal}" Margin="0,0,0,8"/>
+      <TextBlock Text="Window:" FontWeight="Bold"/>
+      <TextBlock Text="{Binding Metadata.Window}" Margin="0,0,0,8"/>
+      <TextBlock Text="Snapshot Created:" FontWeight="Bold"/>
+      <TextBlock Text="{Binding MetadataSnapshotCreatedLocal}" Margin="0,0,0,8"/>
+      <TextBlock Text="Minutes Before:" FontWeight="Bold"/>
+      <TextBlock Text="{Binding Metadata.MinutesBefore}" Margin="0,0,0,8"/>
+      <TextBlock Text="Minutes After:" FontWeight="Bold"/>
+      <TextBlock Text="{Binding Metadata.MinutesAfter}" Margin="0,0,0,8"/>
     </StackPanel>
     <!-- Filters and Status -->
-    <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,0,0,10">
-      <TextBlock Text="Results:" FontWeight="Bold" FontSize="16" Margin="0,0,10,0"/>
-      <TextBlock Text="{Binding EventCount, StringFormat='({0} events found)'}" FontWeight="Bold" Margin="0,0,10,0"/>
-      <!-- Log Level Multi-Select Combo -->
-      <TextBlock Text="Log Level:" VerticalAlignment="Center" Margin="0,0,10,0"/>
-      <ComboBox Width="180" Height="28" IsEditable="False" HorizontalAlignment="Left" VerticalAlignment="Center"
+    <Grid Grid.Column="2" Grid.Row="0" Margin="0,0,0,10">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="180"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="180"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="140"/>
+      </Grid.ColumnDefinitions>
+      <TextBlock Grid.Column="0" Text="Results:" FontWeight="Bold" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0"/>
+      <TextBlock Grid.Column="1" Text="{Binding EventCount, StringFormat='({0} events found)'}" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,20,0"/>
+      <TextBlock Grid.Column="2" Text="Log Level:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+      <ComboBox Grid.Column="3" Width="180" Height="28" IsEditable="False" HorizontalAlignment="Left" VerticalAlignment="Center"
                       ItemsSource="{Binding LogLevels}"
                       IsDropDownOpen="{Binding IsLogLevelPopupOpen, Mode=TwoWay}"
                       StaysOpenOnEdit="True"
@@ -72,15 +96,15 @@
           </ControlTemplate>
         </ComboBox.Template>
       </ComboBox>
-      <TextBlock Text="Search:" VerticalAlignment="Center" Margin="20,0,10,0"/>
-      <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="180"/>
-      <CheckBox Content="Group by Log" IsChecked="{Binding IsGroupingEnabled}" Margin="20,0,0,0" VerticalAlignment="Center"/>
-      <Button Content="Save Snapshot" Command="{Binding SaveSnapshotCommand}" Width="120" Margin="20,0,0,0"/>
-    </StackPanel>
+      <TextBlock Grid.Column="4" Text="Search:" VerticalAlignment="Center" Margin="20,0,10,0"/>
+      <TextBox Grid.Column="5" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="180" VerticalAlignment="Center"/>
+      <CheckBox Grid.Column="6" Content="Group by Log" IsChecked="{Binding IsGroupingEnabled}" Margin="20,0,0,0" VerticalAlignment="Center"/>
+      <Button Grid.Column="8" Content="Save Snapshot" Command="{Binding SaveSnapshotCommand}" Width="120" Margin="20,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+    </Grid>
     <!-- Progress/Status -->
-    <TextBlock Grid.Row="2" Text="{Binding ScanStatus}" FontWeight="Bold" Foreground="DarkBlue" Margin="0,0,0,10"/>
+    <TextBlock Grid.Column="2" Grid.Row="1" Text="{Binding ScanStatus}" FontWeight="Bold" Foreground="DarkBlue" Margin="0,0,0,10"/>
     <!-- DataGrid and Details Split Panels -->
-    <Grid Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid Grid.Column="2" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
         <RowDefinition Height="6"/>
@@ -124,11 +148,11 @@
           </GroupStyle>
         </DataGrid.GroupStyle>
         <DataGrid.Columns>
-          <DataGridTextColumn Header="Time" Binding="{Binding TimeCreated, Mode=OneWay}" Width="150" IsReadOnly="True"/>
-          <DataGridTextColumn Header="Log" Binding="{Binding LogName, Mode=OneWay}" Width="120" IsReadOnly="True"/>
-          <DataGridTextColumn Header="Level" Binding="{Binding Level, Mode=OneWay}" Width="80" IsReadOnly="True"/>
-          <DataGridTextColumn Header="Source" Binding="{Binding Source, Mode=OneWay}" Width="120" IsReadOnly="True"/>
-          <DataGridTextColumn Header="EventId" Binding="{Binding EventId, Mode=OneWay}" Width="80" IsReadOnly="True"/>
+          <DataGridTextColumn Header="Time" Binding="{Binding TimeCreated}" Width="150" IsReadOnly="True"/>
+          <DataGridTextColumn Header="Log" Binding="{Binding LogName}" Width="120" IsReadOnly="True"/>
+          <DataGridTextColumn Header="Level" Binding="{Binding Level}" Width="80" IsReadOnly="True"/>
+          <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="120" IsReadOnly="True"/>
+          <DataGridTextColumn Header="EventId" Binding="{Binding EventId}" Width="80" IsReadOnly="True"/>
           <DataGridTextColumn Header="Message" Width="*"
         IsReadOnly="True">
             <DataGridTextColumn.Binding>
@@ -188,8 +212,7 @@
          Margin="0,0,0,0"
          MinHeight="0"
          MinWidth="0"
-         MaxWidth="Infinity"
-         />
+         MaxWidth="Infinity" />
       </Grid>
     </Grid>
   </Grid>
