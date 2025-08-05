@@ -19,7 +19,7 @@ public class WelcomeViewModel
 
     private void StartNewScan()
     {
-        setCurrentView?.Invoke(new LiveScanViewModel());
+        setCurrentView?.Invoke(new LiveScanViewModel(setCurrentView));
     }
 
     private async void OpenSnapshot()
@@ -40,7 +40,7 @@ public class WelcomeViewModel
                     var resultsVm = new ResultsViewModel();
                     resultsVm.LoadEvents(session.Entries);
                     resultsVm.SetMetadata(session);
-                    // Navigation logic to ResultsView with resultsVm
+                    setCurrentView?.Invoke(new ResultsView { DataContext = resultsVm });
                 }
                 else
                 {

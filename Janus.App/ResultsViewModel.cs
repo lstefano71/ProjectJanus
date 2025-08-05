@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Data;
 using Janus.Core;
 using Microsoft.Win32;
 
@@ -33,37 +34,80 @@ public class ResultsViewModel : INotifyPropertyChanged
 {
     public ObservableCollection<EventLogEntryDisplay> Events { get; } = new();
     public ObservableCollection<EventLogEntryDisplay> FilteredEvents { get; } = new();
+    public ICollectionView EventsView { get; }
+
+    // Log level filter options
+    public ObservableCollection<string> LogLevels { get; } = new() { "Critical", "Error", "Warning", "Information", "Verbose" };
+    private ObservableCollection<string> selectedLogLevels = new();
+    public ObservableCollection<string> SelectedLogLevels
+    {
+        get => selectedLogLevels;
+        set
+        {
+            selectedLogLevels = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(SelectedLogLevelsDisplay));
+            EventsView.Refresh();
+        }
+    }
+    public string SelectedLogLevelsDisplay => SelectedLogLevels.Count == 0 ? "All Levels" : string.Join(", ", SelectedLogLevels);
+    private bool isLogLevelPopupOpen;
+    public bool IsLogLevelPopupOpen
+    {
+        get => isLogLevelPopupOpen;
+        set { isLogLevelPopupOpen = value; OnPropertyChanged(); }
+    }
+    public ICommand ToggleLogLevelCommand { get; }
+    private void ToggleLogLevel(object? level)
+    {
+        if (level is string logLevel)
+        {
+            if (SelectedLogLevels.Contains(logLevel))
+                SelectedLogLevels.Remove(logLevel);
+            else
+                SelectedLogLevels.Add(logLevel);
+            OnPropertyChanged(nameof(SelectedLogLevelsDisplay));
+            EventsView.Refresh();
+        }
+    }
+
+    // Grouping toggle
+    private bool isGroupingEnabled;
+    public bool IsGroupingEnabled
+    {
+        get => isGroupingEnabled;
+        set { isGroupingEnabled = value; OnPropertyChanged(); UpdateGrouping(); }
+    }
+    private void UpdateGrouping()
+    {
+        EventsView.GroupDescriptions.Clear();
+        if (IsGroupingEnabled)
+            EventsView.GroupDescriptions.Add(new PropertyGroupDescription("LogName"));
+    }
+
+    // Progress/Status
+    private string scanStatus = "Ready";
+    public string ScanStatus
+    {
+        get => scanStatus;
+        set { scanStatus = value; OnPropertyChanged(); }
+    }
+
     private EventLogEntryDisplay? selectedEvent;
     public EventLogEntryDisplay? SelectedEvent
     {
         get => selectedEvent;
         set { selectedEvent = value; OnPropertyChanged(); }
     }
-    private bool filterError = true;
-    public bool FilterError
-    {
-        get => filterError;
-        set { filterError = value; ApplyFilter(); OnPropertyChanged(); }
-    }
-    private bool filterWarning = true;
-    public bool FilterWarning
-    {
-        get => filterWarning;
-        set { filterWarning = value; ApplyFilter(); OnPropertyChanged(); }
-    }
-    private bool filterInfo = true;
-    public bool FilterInfo
-    {
-        get => filterInfo;
-        set { filterInfo = value; ApplyFilter(); OnPropertyChanged(); }
-    }
+
     private string searchText = string.Empty;
     public string SearchText
     {
         get => searchText;
-        set { searchText = value; ApplyFilter(); OnPropertyChanged(); }
+        set { searchText = value; EventsView.Refresh(); OnPropertyChanged(); }
     }
-    public int EventCount => FilteredEvents.Count;
+
+    public int EventCount => EventsView.Cast<object>().Count();
     public ICommand CopyMessageCommand { get; }
     public ICommand SaveSnapshotCommand { get; }
     public ScanSession? Metadata { get; private set; }
@@ -72,31 +116,31 @@ public class ResultsViewModel : INotifyPropertyChanged
 
     public ResultsViewModel()
     {
+        EventsView = CollectionViewSource.GetDefaultView(Events);
+        EventsView.Filter = o => FilterPredicate(o as EventLogEntryDisplay);
         CopyMessageCommand = new RelayCommand(_ => CopyMessage(), _ => SelectedEvent is not null);
         SaveSnapshotCommand = new RelayCommand(_ => SaveSnapshot());
+        ToggleLogLevelCommand = new RelayCommand(ToggleLogLevel);
     }
 
     public void LoadEvents(IEnumerable<EventLogEntry> events)
     {
         Events.Clear();
         foreach (var e in events)
+        {
             Events.Add(new EventLogEntryDisplay(e));
-        ApplyFilter();
+            if (!LogLevels.Contains(e.Level))
+                LogLevels.Add(e.Level);
+        }
+        EventsView.Refresh();
+        UpdateGrouping();
+        ScanStatus = $"Loaded {Events.Count} events.";
     }
 
-    private void ApplyFilter()
+    private bool FilterPredicate(EventLogEntryDisplay? e)
     {
-        FilteredEvents.Clear();
-        foreach (var e in Events.Where(FilterPredicate))
-            FilteredEvents.Add(e);
-        OnPropertyChanged(nameof(EventCount));
-    }
-
-    private bool FilterPredicate(EventLogEntryDisplay e)
-    {
-        if (!FilterError && e.Level == "Error") return false;
-        if (!FilterWarning && e.Level == "Warning") return false;
-        if (!FilterInfo && e.Level == "Info") return false;
+        if (e == null) return false;
+        if (SelectedLogLevels.Count > 0 && !SelectedLogLevels.Contains(e.Level)) return false;
         if (!string.IsNullOrWhiteSpace(SearchText) && !(e.Message?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false)) return false;
         return true;
     }
@@ -104,7 +148,7 @@ public class ResultsViewModel : INotifyPropertyChanged
     private void CopyMessage()
     {
         if (SelectedEvent is not null)
-            System.Windows.Clipboard.SetText(SelectedEvent.Message ?? string.Empty);
+            Clipboard.SetText(SelectedEvent.Message ?? string.Empty);
     }
 
     public void SetMetadata(ScanSession session)

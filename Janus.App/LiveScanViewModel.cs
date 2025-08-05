@@ -5,15 +5,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Janus.Core;
-
 using System.Windows.Data;
+using System.Collections.ObjectModel;
 
 namespace Janus.App;
 
-using System.Collections.ObjectModel;
-
 public class LiveScanViewModel : INotifyPropertyChanged
 {
+    private readonly Action<object>? setCurrentView;
     // For ComboBox multi-select popup
     private bool isLogLevelPopupOpen;
     public bool IsLogLevelPopupOpen
@@ -135,8 +134,9 @@ public class LiveScanViewModel : INotifyPropertyChanged
     public ICommand SetNowCommand { get; }
     public ICommand ToggleLogLevelCommand { get; }
 
-    public LiveScanViewModel()
+    public LiveScanViewModel(Action<object>? setCurrentView = null)
     {
+        this.setCurrentView = setCurrentView;
         ScanCommand = new RelayCommand(async _ => await ScanAsync(), _ => cts is null);
         CancelCommand = new RelayCommand(_ => CancelScan(), _ => cts is not null);
         SetNowCommand = new RelayCommand(_ => SetNow());
@@ -194,6 +194,23 @@ public class LiveScanViewModel : INotifyPropertyChanged
             }
             ScanStatus = "Scan complete";
             NoEventsMessage = Events.Count == 0 ? "No events found in the selected window." : string.Empty;
+            // NAVIGATE TO RESULTS VIEW
+            if (setCurrentView != null)
+            {
+                var resultsVm = new ResultsViewModel();
+                resultsVm.LoadEvents(Events);
+                resultsVm.SetMetadata(new ScanSession {
+                    Id = Guid.NewGuid(),
+                    Timestamp = scanTimestamp,
+                    MinutesBefore = MinutesBefore,
+                    MinutesAfter = MinutesAfter,
+                    SnapshotCreated = DateTime.UtcNow,
+                    MachineName = Environment.MachineName,
+                    UserNotes = string.Empty,
+                    Entries = Events.ToList()
+                });
+                setCurrentView(new ResultsView { DataContext = resultsVm });
+            }
         }
         catch (OperationCanceledException)
         {
