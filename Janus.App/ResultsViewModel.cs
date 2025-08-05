@@ -162,10 +162,9 @@ public class ResultsViewModel : INotifyPropertyChanged
     private void SaveSnapshot()
     {
         var dialog = new SaveSnapshotDialog();
-        var vm = new SaveSnapshotDialogViewModel();
-        dialog.DataContext = vm;
         if (dialog.ShowDialog() == true)
         {
+            var vm = (SaveSnapshotDialogViewModel)dialog.DataContext;
             var saveFileDialog = new SaveFileDialog
             {
                 Filter = "Janus Snapshot (*.janus)|*.janus",
