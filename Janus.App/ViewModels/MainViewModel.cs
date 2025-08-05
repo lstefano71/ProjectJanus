@@ -42,6 +42,7 @@ public partial class MainViewModel : ObservableObject
     private ScannedEvent? _selectedEvent;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(CancelScanCommand))]
     private bool _isScanning;
 
     [ObservableProperty]

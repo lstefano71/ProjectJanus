@@ -37,7 +37,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="1" Content="Scan Events" Command="{Binding ScanCommand}" IsEnabled="{Binding !IsScanning}" HorizontalAlignment="Center" Margin="5" Padding="10,5"/>
-                    <Button Grid.Column="1" Content="Cancel Scan" Command="{Binding CancelScanCommand}" IsEnabled="{Binding IsScanning}" HorizontalAlignment="Center" Margin="5" Padding="10,5" Visibility="{Binding IsScanning, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <Button Grid.Column="1" Content="Cancel Scan" Command="{Binding CancelScanCommand}" HorizontalAlignment="Center" Margin="5" Padding="10,5" Visibility="{Binding IsScanning, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                 </Grid>
             </StackPanel>
         </GroupBox>
