@@ -1,0 +1,118 @@
+# -----------------------------------------------------------------------------
+# AI Assistant Configuration & Rule File for Project Janus
+#
+# Purpose: To provide immediate context and architectural directives to an
+# LLM assistant working on this project. The assistant MUST adhere to
+# these rules to maintain code quality, consistency, and align with the
+# project's vision.
+#
+# File: janus.ai.rules.yml
+# -----------------------------------------------------------------------------
+
+project:
+  name: "Project Janus"
+  tagline: "A diagnostic tool to see the past and future of a critical moment in time."
+  vision: >
+    Project Janus solves the problem of manually correlating events in the Windows Event Viewer.
+    Given a single timestamp, it scans all logs in a configurable window before and after that
+    moment, presenting a single, chronological view of all system activity. It supports
+    saving these findings as portable "snapshots" for offline analysis.
+
+documentation:
+  # The assistant should consider these documents as the primary source of truth.
+  prd: "docs/prd/projectjanus.md"
+  todo_list: "docs/todo.md"
+
+stack:
+  language: "C# 13 (or latest stable release). Always use modern language features."
+  platform: ".NET 9 (or latest stable release)."
+  ui_framework: "WPF or WinUI 3. The design must be modern and responsive."
+  database: "SQLite for its serverless, single-file, portable nature."
+  data_access: "Entity Framework Core (EF Core)."
+
+#------------------------------------------------------------------------------
+# ARCHITECTURAL RULES (NON-NEGOTIABLE)
+#------------------------------------------------------------------------------
+architecture_rules:
+  - rule: "Strict MVVM Pattern"
+    description: >
+      The UI MUST strictly adhere to the Model-View-ViewModel (MVVM) pattern.
+      - Views (XAML) are for layout and binding only. No code-behind, except for view-specific
+        animations or control interop.
+      - ViewModels contain all presentation logic, state, and commands. They should be
+        agnostic of the View.
+      - Models represent the core data entities (`ScanSession`, `EventLogEntry`).
+
+  - rule: "Modern C# is Mandatory"
+    description: >
+      Do not write verbose, C#-5.0 style code. Aggressively use modern C# features to improve
+      clarity and reduce boilerplate. This includes, but is not limited to:
+      - Top-level statements and file-scoped types.
+      - Primary constructors.
+      - `required` properties for non-nullable members.
+      - Collection expressions (`[item1, item2]`) instead of `new List<T>() { ... }`.
+      - `using` declarations instead of `using` blocks where appropriate.
+      - Pattern matching.
+
+  - rule: "Async Everywhere"
+    description: >
+      All I/O operations (file access, database queries) and potentially long-running tasks
+      (event log scanning) MUST be asynchronous. Use `async`/`await` throughout the codebase.
+      UI must never be blocked. All long operations must accept a `CancellationToken`.
+
+  - rule: "Separation of Concerns"
+    description: >
+      The solution is divided into logical projects. Respect this separation.
+      - `Janus.Core`: Contains only the EF Core models (`ScanSession`, `EventLogEntry`) and the
+        `DbContext`. It has no knowledge of the UI or event log scanning.
+      - `Janus.App`: Contains all application logic, services, ViewModels, and Views.
+
+  - rule: "Use Correct and Modern APIs"
+    description: >
+      Never guess an API. Always verify the correct, modern API for a task.
+      - **Critical Example:** For event log access, you MUST use the `System.Diagnostics.Eventing.Reader`
+        namespace (`EventLogQuery`, `EventLogReader`). You MUST NOT use the legacy
+        `System.Diagnostics.EventLog` component.
+
+  - rule: "Administrator Elevation via Manifest"
+    description: >
+      The application requires admin rights. This is handled declaratively.
+      - The `app.manifest` file MUST be configured with `requestedExecutionLevel="requireAdministrator"`.
+      - Do NOT implement programmatic self-elevation logic.
+
+#------------------------------------------------------------------------------
+# DATABASE & PERSISTENCE RULES
+#------------------------------------------------------------------------------
+database_rules:
+  - rule: "EF Core with SQLite"
+    description: "The persistence layer is defined. Use EF Core as the ORM and SQLite as the database engine."
+
+  - rule: "NO MIGRATIONS. THIS IS A CRITICAL DIRECTIVE."
+    description: >
+      Project Janus snapshot files (`.janus`) are immutable documents, not long-lived databases.
+      Therefore, we DO NOT use the EF Core Migrations feature.
+      - Do NOT suggest creating or applying migrations.
+      - This avoids all migration-related complexity (`__EFMigrationsHistory` table, migration files).
+
+  - rule: "Schema Management via EnsureCreated"
+    description: >
+      The database schema is created on-the-fly for new snapshot files.
+      - You MUST use the `DbContext.Database.EnsureCreatedAsync()` method when saving a new
+        snapshot. This creates a schema from the current C# models.
+      - When reading a file, gracefully handle `Microsoft.Data.Sqlite.SqliteException` to
+        detect and report schema mismatches between the file and the current app version.
+
+#------------------------------------------------------------------------------
+# UX PHILOSOPHY
+#------------------------------------------------------------------------------
+ux_philosophy:
+  - rule: "User-Centric, Task-Focused"
+    description: >
+      The user experience is paramount. Simplicity and clarity trump developer convenience or
+      unnecessarily complex features. The tool should be intuitive for its target audience
+      (developers, sysadmins).
+
+  - rule: "Responsive and Informative UI"
+    description: >
+      The UI must never feel frozen. Provide constant feedback during long operations,
+      including progress indicators and cancellation capabilities.
