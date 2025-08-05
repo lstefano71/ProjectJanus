@@ -8,6 +8,8 @@ using System.Windows.Input;
 using System.Windows.Data;
 using Janus.Core;
 using Microsoft.Win32;
+using Janus.App.Services;
+using System.Timers;
 
 namespace Janus.App;
 
@@ -30,8 +32,42 @@ public class EventLogEntryDisplay
     public string TimeCreatedLocal => entry.TimeCreated.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
 }
 
-public class ResultsViewModel : INotifyPropertyChanged
+public partial class ResultsViewModel : INotifyPropertyChanged
 {
+    private readonly UserUiSettingsService uiSettingsService = UserUiSettingsService.Instance;
+    private readonly System.Timers.Timer debounceTimer;
+    private bool pendingSave;
+
+    private double resultsSplitterPosition = 0.5;
+    public double ResultsSplitterPosition
+    {
+        get => resultsSplitterPosition;
+        set
+        {
+            if (resultsSplitterPosition != value)
+            {
+                resultsSplitterPosition = value;
+                OnPropertyChanged();
+                DebounceSave();
+            }
+        }
+    }
+
+    private double detailsSplitterPosition = 0.33;
+    public double DetailsSplitterPosition
+    {
+        get => detailsSplitterPosition;
+        set
+        {
+            if (detailsSplitterPosition != value)
+            {
+                detailsSplitterPosition = value;
+                OnPropertyChanged();
+                DebounceSave();
+            }
+        }
+    }
+
     public ObservableCollection<EventLogEntryDisplay> Events { get; } = new();
     public ICollectionView EventsView { get; }
 
@@ -86,7 +122,7 @@ public class ResultsViewModel : INotifyPropertyChanged
             if (isGroupByLevelEnabled != value)
             {
                 isGroupByLevelEnabled = value;
-                if (value) IsGroupingEnabled = false; // mutually exclusive
+                // if (value) IsGroupingEnabled = false; // mutually exclusive
                 OnPropertyChanged();
                 UpdateGrouping();
             }
@@ -137,6 +173,16 @@ public class ResultsViewModel : INotifyPropertyChanged
         CopyMessageCommand = new RelayCommand(_ => CopyMessage(), _ => SelectedEvent is not null);
         SaveSnapshotCommand = new RelayCommand(_ => SaveSnapshot());
         ToggleLogLevelCommand = new RelayCommand(ToggleLogLevel);
+        debounceTimer = new System.Timers.Timer(500) { AutoReset = false };
+        debounceTimer.Elapsed += async (_, __) =>
+        {
+            if (pendingSave)
+            {
+                await SaveUiSettingsAsync();
+                pendingSave = false;
+            }
+        };
+        _ = LoadUiSettingsAsync();
     }
 
     public void LoadEvents(IEnumerable<EventLogEntry> events)
@@ -204,6 +250,28 @@ public class ResultsViewModel : INotifyPropertyChanged
                 SetMetadata(updatedSession);
             }
         }
+    }
+
+    private async Task LoadUiSettingsAsync()
+    {
+        var settings = await uiSettingsService.LoadAsync();
+        ResultsSplitterPosition = settings.ResultsSplitterPosition;
+        DetailsSplitterPosition = settings.DetailsSplitterPosition;
+    }
+
+    private async Task SaveUiSettingsAsync()
+    {
+        var settings = await uiSettingsService.LoadAsync();
+        settings.ResultsSplitterPosition = ResultsSplitterPosition;
+        settings.DetailsSplitterPosition = DetailsSplitterPosition;
+        await uiSettingsService.SaveAsync(settings);
+    }
+
+    private void DebounceSave()
+    {
+        pendingSave = true;
+        debounceTimer.Stop();
+        debounceTimer.Start();
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

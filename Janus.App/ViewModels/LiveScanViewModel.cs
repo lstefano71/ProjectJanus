@@ -5,12 +5,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Janus.Core;
+using Janus.App.Services;
 
 namespace Janus.App;
 
 public class LiveScanViewModel : INotifyPropertyChanged
 {
     private readonly Action<object>? setCurrentView;
+    private readonly UserUiSettingsService uiSettingsService = UserUiSettingsService.Instance;
     private DateTime timestamp = DateTime.Now;
     private string timeOfDay = DateTime.Now.ToString("HH:mm:ss");
     private int minutesBefore = 5;
@@ -31,12 +33,28 @@ public class LiveScanViewModel : INotifyPropertyChanged
     public int MinutesBefore
     {
         get => minutesBefore;
-        set { minutesBefore = value; OnPropertyChanged(); }
+        set
+        {
+            if (minutesBefore != value)
+            {
+                minutesBefore = value;
+                OnPropertyChanged();
+                _ = SaveUiSettingsAsync();
+            }
+        }
     }
     public int MinutesAfter
     {
         get => minutesAfter;
-        set { minutesAfter = value; OnPropertyChanged(); }
+        set
+        {
+            if (minutesAfter != value)
+            {
+                minutesAfter = value;
+                OnPropertyChanged();
+                _ = SaveUiSettingsAsync();
+            }
+        }
     }
     public string ScanStatus
     {
@@ -54,6 +72,22 @@ public class LiveScanViewModel : INotifyPropertyChanged
         ScanCommand = new RelayCommand(async _ => await ScanAsync(), _ => cts is null);
         CancelCommand = new RelayCommand(_ => CancelScan(), _ => cts is not null);
         SetNowCommand = new RelayCommand(_ => SetNow());
+        _ = LoadUiSettingsAsync();
+    }
+
+    private async Task LoadUiSettingsAsync()
+    {
+        var settings = await uiSettingsService.LoadAsync();
+        MinutesBefore = settings.MinutesBefore;
+        MinutesAfter = settings.MinutesAfter;
+    }
+
+    private async Task SaveUiSettingsAsync()
+    {
+        var settings = await uiSettingsService.LoadAsync();
+        settings.MinutesBefore = MinutesBefore;
+        settings.MinutesAfter = MinutesAfter;
+        await uiSettingsService.SaveAsync(settings);
     }
 
     private void SetNow()
