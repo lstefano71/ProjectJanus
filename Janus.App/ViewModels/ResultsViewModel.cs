@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace Janus.App;
 
@@ -65,7 +66,28 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   }
 
   public ObservableCollection<EventLogEntryDisplay> Events { get; } = new();
-  public ICollectionView EventsView { get; }
+  private ICollectionView _eventsView;
+  public ICollectionView EventsView {
+    get => _eventsView;
+    set { _eventsView = value; OnPropertyChanged(); }
+  }
+  public bool HasEvents => EventCount > 0;
+
+  private int eventCount;
+  public int EventCount {
+    get => eventCount;
+    set {
+      if (eventCount != value) {
+        eventCount = value;
+        OnPropertyChanged();
+        OnPropertyChanged(nameof(EventCountStatus)); // Update status string when count changes
+                                                     // Crucially, notify that HasEvents has also changed
+        OnPropertyChanged(nameof(HasEvents));
+      }
+    }
+  }
+  public int TotalEventCount => Events.Count;
+  public string EventCountStatus => $"{EventCount} / {TotalEventCount} events";
 
   // Log level filter options
   public ObservableCollection<string> LogLevels { get; } = new() { "Critical", "Error", "Warning", "Information", "Verbose" };
@@ -95,8 +117,8 @@ public partial class ResultsViewModel : INotifyPropertyChanged
       else
         SelectedLogLevels.Add(logLevel);
       OnPropertyChanged(nameof(SelectedLogLevelsDisplay));
-      EventsView.Refresh();
-      OnPropertyChanged(nameof(EventCountStatus));
+      RebuildView(); // Call the new rebuild method
+
     }
   }
 
@@ -104,7 +126,9 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   private bool isGroupingEnabled;
   public bool IsGroupingEnabled {
     get => isGroupingEnabled;
-    set { isGroupingEnabled = value; OnPropertyChanged(); UpdateGrouping(); }
+    set { isGroupingEnabled = value; OnPropertyChanged(); UpdateGrouping();
+      OnPropertyChanged(nameof(IsAnyGroupingEnabled)); // Notify combined property
+    }
   }
   private bool isGroupByLevelEnabled;
   public bool IsGroupByLevelEnabled {
@@ -115,9 +139,15 @@ public partial class ResultsViewModel : INotifyPropertyChanged
         // if (value) IsGroupingEnabled = false; // mutually exclusive
         OnPropertyChanged();
         UpdateGrouping();
+        OnPropertyChanged(nameof(IsAnyGroupingEnabled)); // Notify combined property
+
       }
     }
   }
+  // The NEW combined property for the View to use.
+  public bool IsAnyGroupingEnabled => IsGroupingEnabled || IsGroupByLevelEnabled;
+
+  // This method is now correct and necessary. It manages the DATA, not the visuals.
   private void UpdateGrouping()
   {
     EventsView.GroupDescriptions.Clear();
@@ -143,13 +173,29 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   private string searchText = string.Empty;
   public string SearchText {
     get => searchText;
-    set { searchText = value; EventsView.Refresh(); OnPropertyChanged(); OnPropertyChanged(nameof(EventCountStatus)); }
+    set { searchText = value; 
+      OnPropertyChanged();
+      RebuildView(); // Call the new rebuild method
+    }
   }
+  private void RebuildView()
+  {
+    // 1. Create a completely new CollectionViewSource.
+    var cvs = new CollectionViewSource { Source = Events };
 
-  public int EventCount => EventsView.Cast<object>().Count();
-  // Add property for total (unfiltered) count
-  public int TotalEventCount => Events.Count;
-  public string EventCountStatus => $"{EventCount} / {TotalEventCount} events";
+    // 2. Re-apply the filter to the new view.
+    cvs.Filter += (s, e) => {
+      e.Accepted = FilterPredicate(e.Item as EventLogEntryDisplay);
+    };
+
+    // 3. Set the new view to our property. This triggers the UI to update.
+    // The DataGrid will see it's a NEW object and completely reset itself.
+    EventsView = cvs.View;
+
+    // 4. Re-apply grouping and update counts on the new view.
+    UpdateGrouping();
+    EventCount = EventsView.Cast<object>().Count();
+  }
   public ICommand CopyMessageCommand { get; }
   public ICommand SaveSnapshotCommand { get; }
   public ICommand BackCommand { get; }
@@ -176,8 +222,9 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   {
     this.setCurrentView = setCurrentView;
     this.previousView = previousView;
-    EventsView = CollectionViewSource.GetDefaultView(Events);
-    EventsView.Filter = o => FilterPredicate(o as EventLogEntryDisplay);
+
+    RebuildView();
+
     CopyMessageCommand = new RelayCommand(_ => CopyMessage(), _ => SelectedEvent is not null);
     SaveSnapshotCommand = new AsyncRelayCommand(SaveSnapshotAsync, () => CanSaveSnapshot);
     ToggleLogLevelCommand = new RelayCommand(ToggleLogLevel);
@@ -212,7 +259,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     EventsView.Refresh();
     UpdateGrouping();
     ScanStatus = $"Loaded {Events.Count} events.";
-    OnPropertyChanged(nameof(EventCountStatus));
+    RebuildView();
   }
 
   private bool FilterPredicate(EventLogEntryDisplay? e)

@@ -4,14 +4,23 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
              mc:Ignorable="d"
              d:DesignHeight="400" d:DesignWidth="900" Loaded="UserControl_Loaded">
   <UserControl.Resources>
+    <BooleanToVisibilityConverter x:Key="BoolToVis" />
     <local:StringNotEmptyToVisibleConverter x:Key="StringNotEmptyToVisible" />
     <local:FirstLineConverter x:Key="FirstLineConverter" />
     <local:LogLevelSelectedConverter x:Key="LogLevelSelectedConverter" />
     <local:BooleanToGridLengthConverter x:Key="BoolToGridLength" ExpandedWidth="220" CollapsedWidth="0" />
     <local:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+    <GroupStyle x:Key="MyEventGroupStyle">
+      <GroupStyle.HeaderTemplate>
+        <DataTemplate>
+          <TextBlock FontWeight="Bold" FontSize="14" Foreground="DarkSlateGray" Text="{Binding Name}" Margin="4,0,0,0"/>
+        </DataTemplate>
+      </GroupStyle.HeaderTemplate>
+    </GroupStyle>
   </UserControl.Resources>
   <Grid Margin="20">
     <Grid.ColumnDefinitions>
@@ -24,7 +33,8 @@
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
-      <RowDefinition Height="Auto"/> <!-- New row for Save Snapshot button -->
+      <RowDefinition Height="Auto"/>
+      <!-- New row for Save Snapshot button -->
     </Grid.RowDefinitions>
     <!-- Expander Header Only -->
     <Expander x:Name="MetadataExpander" Grid.Column="0" Grid.Row="0" Grid.RowSpan="4" IsExpanded="False" VerticalAlignment="Top" Margin="0,0,0,0" ExpandDirection="Right">
@@ -131,10 +141,19 @@
                 AutoGenerateColumns="False"
                 Margin="0,0,0,0"
                 RowHeight="28"
+                MinHeight="120"
                 EnableRowVirtualization="True"
                 EnableColumnVirtualization="True"
                 VirtualizingPanel.IsVirtualizing="True"
-                VirtualizingPanel.VirtualizationMode="Recycling">
+                VirtualizingPanel.VirtualizationMode="Recycling"
+                Visibility="{Binding HasEvents, Converter={StaticResource BoolToVis}}"
+>
+        <i:Interaction.Behaviors>
+          <!-- The behavior is now simpler and correctly bound. -->
+          <local:DataGridGroupStyleBehavior 
+                GroupStyle="{StaticResource MyEventGroupStyle}"
+                IsEnabled="{Binding IsAnyGroupingEnabled}" />
+        </i:Interaction.Behaviors>
         <DataGrid.RowStyle>
           <Style TargetType="DataGridRow">
             <Setter Property="Background" Value="White"/>
@@ -157,15 +176,6 @@
             </Style.Triggers>
           </Style>
         </DataGrid.RowStyle>
-        <DataGrid.GroupStyle>
-          <GroupStyle>
-            <GroupStyle.HeaderTemplate>
-              <DataTemplate>
-                <TextBlock FontWeight="Bold" FontSize="14" Foreground="DarkSlateGray" Text="{Binding Name}" Margin="4,0,0,0"/>
-              </DataTemplate>
-            </GroupStyle.HeaderTemplate>
-          </GroupStyle>
-        </DataGrid.GroupStyle>
         <DataGrid.Columns>
           <DataGridTextColumn Header="Time" Binding="{Binding TimeCreatedIso}" Width="Auto" IsReadOnly="True"/>
           <DataGridTextColumn Header="Log" Binding="{Binding LogName}" Width="Auto" IsReadOnly="True"/>
@@ -183,6 +193,25 @@
           </DataGridTextColumn>
         </DataGrid.Columns>
       </DataGrid>
+      <!-- Add this TextBlock as a placeholder -->
+      <TextBlock Grid.Row="0"
+             Text="No events match the current filter."
+             FontSize="16"
+             Foreground="Gray"
+             HorizontalAlignment="Center"
+             VerticalAlignment="Center">
+        <TextBlock.Style>
+          <Style TargetType="TextBlock">
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Style.Triggers>
+              <!-- This trigger makes the TextBlock visible only when HasEvents is false -->
+              <DataTrigger Binding="{Binding HasEvents}" Value="False">
+                <Setter Property="Visibility" Value="Visible" />
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </TextBlock.Style>
+      </TextBlock>
       <GridSplitter Grid.Row="1" Height="6" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="#DDD" ShowsPreview="True" AutomationProperties.Name="hSplitter" />
       <Grid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.ColumnDefinitions>
