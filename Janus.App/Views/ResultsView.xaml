@@ -25,7 +25,7 @@
       </GroupStyle.HeaderTemplate>
     </GroupStyle>
   </UserControl.Resources>
-  <Grid Margin="20">
+  <Grid Margin="8">
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="32"/>
       <ColumnDefinition Width="{Binding IsExpanded, ElementName=MetadataExpander, Converter={StaticResource BoolToGridLength}}"/>
@@ -78,7 +78,8 @@
             SelectedItems="{Binding SelectedLogLevels, Mode=TwoWay}"
             ItemCountProvider="{Binding LogLevelCountProvider}"
             PlaceholderText="Search log levels..."
-            Margin="0,0,0,12"/>
+            Margin="0,0,0,6"/>
+          <Border Height="1" Background="Gray" Margin="0,3,0,3"/>
           <!-- Source MultiSelect -->
           <controls:AdvancedMultiSelect
             Header="Source"
@@ -86,7 +87,8 @@
             SelectedItems="{Binding SelectedSources, Mode=TwoWay}"
             ItemCountProvider="{Binding SourceCountProvider}"
             PlaceholderText="Search sources..."
-            Margin="0,0,0,12"/>
+            Margin="0,0,0,6"/>
+          <Border Height="1" Background="Gray" Margin="0,3,0,3"/>
           <!-- Log Name MultiSelect -->
           <controls:AdvancedMultiSelect
             Header="Log"
@@ -94,14 +96,8 @@
             SelectedItems="{Binding SelectedLogNames, Mode=TwoWay}"
             ItemCountProvider="{Binding LogNameCountProvider}"
             PlaceholderText="Search logs..."
-            Margin="0,0,0,12"/>
-          <!-- Grouping -->
-          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-            <CheckBox Content="Group by Log" IsChecked="{Binding IsGroupingEnabled}" Margin="0,0,8,0"
-                      IsEnabled="{Binding IsGroupByLevelEnabled, Converter={StaticResource InverseBooleanConverter}}"/>
-            <CheckBox Content="Group by Level" IsChecked="{Binding IsGroupByLevelEnabled}"
-                      IsEnabled="{Binding IsGroupingEnabled, Converter={StaticResource InverseBooleanConverter}}"/>
-          </StackPanel>
+            Margin="0,0,0,6"/>
+          <Border Height="1" Background="Gray" Margin="0,3,0,3"/>
           <!-- Message Search -->
           <controls:TextBoxWithPlaceholder
               Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
@@ -115,6 +111,19 @@
           <!-- Placeholder for future time filter UI -->
           <Border Height="40" Margin="0,12,0,0" Background="#EEE" CornerRadius="4" VerticalAlignment="Top">
             <TextBlock Text="(Time filter coming soon)" Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+          </Border>
+          <!-- Grouping -->
+          <Border BorderBrush="Red" BorderThickness="2" CornerRadius="4" Margin="0,0,0,8">
+            <StackPanel Orientation="Vertical" Margin="8">
+              <TextBlock Text="These are very slow and should be used with caution." 
+                         FontWeight="Bold"
+                         Foreground="Red" FontSize="12" Margin="0,0,8,0"
+                         TextWrapping="Wrap" />
+              <CheckBox Content="Group by Log" IsChecked="{Binding IsGroupingEnabled}" Margin="0,0,8,0"
+                        IsEnabled="{Binding IsGroupByLevelEnabled, Converter={StaticResource InverseBooleanConverter}}"/>
+              <CheckBox Content="Group by Level" IsChecked="{Binding IsGroupByLevelEnabled}"
+                        IsEnabled="{Binding IsGroupingEnabled, Converter={StaticResource InverseBooleanConverter}}"/>
+            </StackPanel>
           </Border>
         </StackPanel>
       </ScrollViewer>
