@@ -73,17 +73,16 @@
                                           AutomationProperties.HelpText="Select or deselect item">
                                     <CheckBox.ToolTip>
                                         <TextBlock>
-                                            <Run Text="{Binding DisplayText}"/>
-                                            <Run Text=" ("/>
                                             <Run Text="{Binding Count}"/>
-                                            <Run Text=")"/>
+                                            <Run Text=" "/>
+                                            <Run Text="{Binding DisplayText}"/>
                                         </TextBlock>
                                     </CheckBox.ToolTip>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding DisplayText}" />
-                                        <TextBlock Text=" ("/>
-                                        <TextBlock Text="{Binding Count}" />
-                                        <TextBlock Text=")"/>
+                                        <Border Background="#FFE0E0E0" CornerRadius="3" Margin="0,0,6,0" Padding="4,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Count}" FontSize="11" VerticalAlignment="Center" Foreground="Black"/>
+                                        </Border>
+                                        <TextBlock Text="{Binding DisplayText}" VerticalAlignment="Center" />
                                     </StackPanel>
                                 </CheckBox>
                             </DataTemplate>

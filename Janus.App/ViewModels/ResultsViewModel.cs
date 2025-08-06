@@ -226,6 +226,16 @@ public partial class ResultsViewModel : INotifyPropertyChanged
       RebuildView(); // Call the new rebuild method
     }
   }
+  private void NotifyCrossFilterProperties()
+  {
+    OnPropertyChanged(nameof(LogLevelCountProvider));
+    OnPropertyChanged(nameof(SourceCountProvider));
+    OnPropertyChanged(nameof(LogNameCountProvider));
+    OnPropertyChanged(nameof(LogLevels));
+    OnPropertyChanged(nameof(Sources));
+    OnPropertyChanged(nameof(LogNames));
+  }
+
   private void RebuildView()
   {
     // 1. Create a completely new CollectionViewSource.
@@ -247,6 +257,9 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     // 4. Re-apply grouping and update counts on the new view.
     UpdateGrouping();
     EventCount = EventsView.Cast<object>().Count();
+
+    // 5. Notify cross-filter properties so AdvancedMultiSelects update counters
+    NotifyCrossFilterProperties();
   }
   public ICommand CopyMessageCommand { get; }
   public ICommand SaveSnapshotCommand { get; }
@@ -299,9 +312,9 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     this.previousView = previousView;
 
     // Subscribe to collection changes for filter collections
-    SelectedLogLevels.CollectionChanged += (_, __) => RebuildView();
-    SelectedSources.CollectionChanged += (_, __) => RebuildView();
-    SelectedLogNames.CollectionChanged += (_, __) => RebuildView();
+    SelectedLogLevels.CollectionChanged += (_, __) => { RebuildView(); NotifyCrossFilterProperties(); };
+    SelectedSources.CollectionChanged += (_, __) => { RebuildView(); NotifyCrossFilterProperties(); };
+    SelectedLogNames.CollectionChanged += (_, __) => { RebuildView(); NotifyCrossFilterProperties(); };
 
     RebuildView();
 
@@ -460,5 +473,5 @@ public partial class ResultsViewModel : INotifyPropertyChanged
 
   public event PropertyChangedEventHandler? PropertyChanged;
   private void OnPropertyChanged([CallerMemberName] string? name = null)
-      => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }
