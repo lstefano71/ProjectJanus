@@ -30,8 +30,7 @@ public partial class WelcomeView : UserControl
 
   private void RecentSnapshotsListBox_KeyDown(object sender, KeyEventArgs e)
   {
-    if (e.Key == Key.Enter && DataContext is WelcomeViewModel vm && RecentSnapshotsListBox.SelectedItem is RecentSnapshotInfo info)
-    {
+    if (e.Key == Key.Enter && DataContext is WelcomeViewModel vm && RecentSnapshotsListBox.SelectedItem is RecentSnapshotInfo info) {
       if (vm.OpenRecentSnapshotCommand.CanExecute(info))
         vm.OpenRecentSnapshotCommand.Execute(info);
       e.Handled = true;

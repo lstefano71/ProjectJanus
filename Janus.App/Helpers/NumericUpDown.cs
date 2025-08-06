@@ -1,8 +1,8 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows;
 
 namespace Janus.App;
 
@@ -39,8 +39,7 @@ public partial class NumericUpDown : UserControl, INotifyPropertyChanged
 
   private void ValueBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
   {
-    if (sender is TextBox tb && !tb.IsKeyboardFocusWithin)
-    {
+    if (sender is TextBox tb && !tb.IsKeyboardFocusWithin) {
       e.Handled = true;
       tb.Focus();
       tb.SelectAll();

@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
     mc:Ignorable="d"
-    d:DesignHeight="400" d:DesignWidth="900" Loaded="UserControl_Loaded">
+    d:DesignHeight="400" d:DesignWidth="900">
   <UserControl.Resources>
     <BooleanToVisibilityConverter x:Key="BoolToVis" />
     <local:StringNotEmptyToVisibleConverter x:Key="StringNotEmptyToVisible" />
@@ -36,7 +36,6 @@
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
-      <!-- New row for Save Snapshot button -->
     </Grid.RowDefinitions>
     <!-- Expander Header Only -->
     <Expander x:Name="MetadataExpander" Grid.Column="0" Grid.Row="0" Grid.RowSpan="4" IsExpanded="False" VerticalAlignment="Top" Margin="0,0,0,0" ExpandDirection="Right">
@@ -119,8 +118,8 @@
         </ComboBox.Template>
       </ComboBox>
       <!-- Search -->
-      <TextBlock Grid.Column="1" Grid.Row="1" Text="Search:" VerticalAlignment="Center" Margin="0,0,10,0"/>
-      <TextBox Grid.Column="2" Grid.Row="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="180" VerticalAlignment="Center"/>
+      <TextBlock Grid.Column="1" Grid.Row="1" Text="_Search:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+      <TextBox x:Name="SearchBox" Grid.Column="2" Grid.Row="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="180" VerticalAlignment="Center"/>
       <!-- Group by Log -->
       <CheckBox Grid.Column="3" Grid.Row="1" Content="Group by Log" IsChecked="{Binding IsGroupingEnabled}" Margin="0,0,0,0" VerticalAlignment="Center"
                 IsEnabled="{Binding IsGroupByLevelEnabled, Converter={StaticResource InverseBooleanConverter}}"/>
@@ -156,9 +155,9 @@
                 VirtualizingPanel.IsVirtualizing="True"
                 VirtualizingPanel.VirtualizationMode="Recycling"
                 Visibility="{Binding HasEvents, Converter={StaticResource BoolToVis}}"
->
+                KeyboardNavigation.TabIndex="1"
+                KeyDown="ResultsDataGrid_KeyDown">
         <i:Interaction.Behaviors>
-          <!-- The behavior is now simpler and correctly bound. -->
           <local:DataGridGroupStyleBehavior 
                 GroupStyle="{StaticResource MyEventGroupStyle}"
                 IsEnabled="{Binding IsAnyGroupingEnabled}" />
@@ -291,8 +290,10 @@
       </Grid>
     </Grid>
     <!-- Save Snapshot button at bottom right -->
-    <Button Grid.Column="2" Grid.Row="4" Content="Save Snapshot" Command="{Binding SaveSnapshotCommand}" Width="120" Margin="0,10,0,0" VerticalAlignment="Bottom" HorizontalAlignment="Right" IsEnabled="{Binding CanSaveSnapshot}"/>
+    <Button x:Name="SaveSnapshotButton" Grid.Column="2" Grid.Row="4" Content="_Save Snapshot" Command="{Binding SaveSnapshotCommand}" Width="120" Margin="0,10,0,0" VerticalAlignment="Bottom" HorizontalAlignment="Right" IsEnabled="{Binding CanSaveSnapshot}" IsDefault="True"/>
     <!-- Back button at bottom left -->
-    <Button Grid.Column="2" Grid.Row="4" Content="Back" Command="{Binding BackCommand}" Width="80" Margin="0,10,0,0" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+    <Button x:Name="BackButton" Grid.Column="2" Grid.Row="4" Content="_Back" Command="{Binding BackCommand}" Width="80" Margin="0,10,0,0" VerticalAlignment="Bottom" HorizontalAlignment="Left" IsCancel="True"/>
+    <!-- Copy Message button -->
+    <Button x:Name="CopyMessageButton" Grid.Column="2" Grid.Row="4" Content="_Copy Message" Command="{Binding CopyMessageCommand}" Width="120" Margin="140,10,0,0" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
   </Grid>
 </UserControl>

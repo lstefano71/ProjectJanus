@@ -1,5 +1,5 @@
-using System.Windows.Controls;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace Janus.App;
@@ -39,14 +39,11 @@ public partial class LiveScanView : UserControl
 
   private void NumericOnly_Pasting(object sender, DataObjectPastingEventArgs e)
   {
-    if (e.DataObject.GetDataPresent(typeof(string)))
-    {
+    if (e.DataObject.GetDataPresent(typeof(string))) {
       var text = (string)e.DataObject.GetData(typeof(string));
       if (!IsTextNumeric(text))
         e.CancelCommand();
-    }
-    else
-    {
+    } else {
       e.CancelCommand();
     }
   }

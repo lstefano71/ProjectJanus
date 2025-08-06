@@ -13,21 +13,26 @@ public partial class ResultsView : UserControl
   public ResultsView()
   {
     InitializeComponent();
-    // Attach key handler for DataGrid after InitializeComponent
-    this.Loaded += (s, e) => {
-      if (this.FindName("ResultsDataGrid") is DataGrid dataGrid) {
-        dataGrid.PreviewKeyDown += DataGrid_PreviewKeyDown;
-      }
-    };
+    this.Loaded += ResultsView_Loaded;
   }
 
-  private void UserControl_Loaded(object sender, RoutedEventArgs e)
+  private void ResultsView_Loaded(object sender, RoutedEventArgs e)
   {
-    _ = FindName("ResultsSplitter") as GridSplitter;
-    _ = FindName("DetailsSplitter") as GridSplitter;
+    //    _ = FindName("ResultsSplitter") as GridSplitter;
+    // _ = FindName("DetailsSplitter") as GridSplitter; 
+    if (ResultsDataGrid != null) {
+      ResultsDataGrid.KeyDown += ResultsDataGrid_KeyDown;
+      ResultsDataGrid.Focus();
+      if (ResultsDataGrid.Items.Count > 0 && ResultsDataGrid.SelectedIndex == -1)
+        ResultsDataGrid.SelectedIndex = 0;
+    }
+    if (SearchBox != null) {
+      SearchBox.GotKeyboardFocus += (s, args) => SearchBox.SelectAll();
+      SearchBox.KeyDown += SearchBox_KeyDown;
+    }
   }
 
-  private void DataGrid_PreviewKeyDown(object sender, KeyEventArgs e)
+  private void ResultsDataGrid_KeyDown(object sender, KeyEventArgs e)
   {
     if (e.Key == Key.Space) {
       if (sender is DataGrid dg && dg.SelectedItem is EventLogEntryDisplay entry) {
@@ -36,6 +41,26 @@ public partial class ResultsView : UserControl
           e.Handled = true;
         }
       }
+    } else if (e.Key == Key.C && Keyboard.Modifiers.HasFlag(ModifierKeys.Control)) {
+      if (DataContext is ResultsViewModel vm && vm.CopyMessageCommand.CanExecute(null)) {
+        vm.CopyMessageCommand.Execute(null);
+        e.Handled = true;
+      }
+    } else if (e.Key == Key.Enter) {
+      if (DataContext is ResultsViewModel vm && vm.CopyMessageCommand.CanExecute(null)) {
+        vm.CopyMessageCommand.Execute(null);
+        e.Handled = true;
+      }
+    }
+  }
+
+  private void SearchBox_KeyDown(object sender, KeyEventArgs e)
+  {
+    if (e.Key == Key.Enter) {
+      // Triggers filtering by updating SearchText (already bound)
+      // Optionally, move focus to ResultsDataGrid
+      ResultsDataGrid.Focus();
+      e.Handled = true;
     }
   }
 }
