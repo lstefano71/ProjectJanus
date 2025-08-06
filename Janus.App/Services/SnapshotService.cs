@@ -39,14 +39,39 @@ public class SnapshotService
   {
     try {
       var options = new DbContextOptionsBuilder<EventSnapshotDbContext>()
-          .UseSqlite($"Data Source={filePath}")
+          .UseSqlite($"Data Source={filePath};Pooling=false")
           .Options;
       await using var db = new EventSnapshotDbContext(options);
       await db.Database.EnsureCreatedAsync();
-      return await db.ScanSessions.Include(s => s.Entries).FirstOrDefaultAsync();
+      var res = await db.ScanSessions.Include(s => s.Entries).FirstOrDefaultAsync();
+      return res;
     } catch (SqliteException ex) {
       // Handle schema mismatch or file errors
       throw new InvalidOperationException("Failed to load snapshot.", ex);
     }
   }
+
+
+  public static async Task<(ScanSession?, int?)> LoadSnapshotMetadataAsync(string filePath)
+  {
+    try {
+      var options = new DbContextOptionsBuilder<EventSnapshotDbContext>()
+          .UseSqlite($"Data Source={filePath};Pooling=false")
+          .LogTo(s => System.Diagnostics.Trace.WriteLine(s), Microsoft.Extensions.Logging.LogLevel.Information)
+          .Options;
+      await using var db = new EventSnapshotDbContext(options);
+      await db.Database.EnsureCreatedAsync();
+      var res = await db.ScanSessions
+        .Select(s => new {
+          Session = s,
+          Count = s.Entries.Count
+        }).FirstOrDefaultAsync();
+
+      return (res?.Session, res?.Count);
+    } catch (SqliteException ex) {
+      // Handle schema mismatch or file errors
+      throw new InvalidOperationException("Failed to load snapshot metadata.", ex);
+    }
+  }
+
 }

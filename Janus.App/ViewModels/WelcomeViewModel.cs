@@ -16,7 +16,10 @@ public class RecentSnapshotInfo : INotifyPropertyChanged
 {
   public string FilePath { get; set; } = string.Empty;
   public string? Error { get; set; }
-  public ScanSession? Metadata { get; set; }
+  // Replace tuple with explicit properties for binding
+  public ScanSession? MetadataSession { get; set; }
+  public int? MetadataEventCount { get; set; }
+
   public string FileName => Path.GetFileName(FilePath);
   public event PropertyChangedEventHandler? PropertyChanged;
   public void OnPropertyChanged([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -112,21 +115,26 @@ public class WelcomeViewModel : INotifyPropertyChanged
     if (SelectedRecentSnapshot == null) return;
     if (!File.Exists(SelectedRecentSnapshot.FilePath)) {
       SelectedRecentSnapshot.Error = "File not found.";
-      SelectedRecentSnapshot.Metadata = null;
+      SelectedRecentSnapshot.MetadataSession = null;
+      SelectedRecentSnapshot.MetadataEventCount = null;
       SelectedRecentSnapshot.OnPropertyChanged(nameof(RecentSnapshotInfo.Error));
-      SelectedRecentSnapshot.OnPropertyChanged(nameof(RecentSnapshotInfo.Metadata));
+      SelectedRecentSnapshot.OnPropertyChanged(nameof(RecentSnapshotInfo.MetadataSession));
+      SelectedRecentSnapshot.OnPropertyChanged(nameof(RecentSnapshotInfo.MetadataEventCount));
       return;
     }
     var service = new SnapshotService();
     try {
-      var session = await SnapshotService.LoadSnapshotAsync(SelectedRecentSnapshot.FilePath);
-      SelectedRecentSnapshot.Metadata = session;
+      var sessioninfo = await SnapshotService.LoadSnapshotMetadataAsync(SelectedRecentSnapshot.FilePath);
+      SelectedRecentSnapshot.MetadataSession = sessioninfo.Item1;
+      SelectedRecentSnapshot.MetadataEventCount = sessioninfo.Item2;
       SelectedRecentSnapshot.Error = null;
     } catch (Exception ex) {
-      SelectedRecentSnapshot.Metadata = null;
+      SelectedRecentSnapshot.MetadataSession = null;
+      SelectedRecentSnapshot.MetadataEventCount = null;
       SelectedRecentSnapshot.Error = ex.Message;
     }
-    SelectedRecentSnapshot.OnPropertyChanged(nameof(RecentSnapshotInfo.Metadata));
+    SelectedRecentSnapshot.OnPropertyChanged(nameof(RecentSnapshotInfo.MetadataSession));
+    SelectedRecentSnapshot.OnPropertyChanged(nameof(RecentSnapshotInfo.MetadataEventCount));
     SelectedRecentSnapshot.OnPropertyChanged(nameof(RecentSnapshotInfo.Error));
   }
 }

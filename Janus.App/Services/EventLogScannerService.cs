@@ -42,6 +42,7 @@ public class EventLogScannerService
     var entries = new List<EventLogEntry>();
     var tasks = new List<Task>();
     var eventCount = 0;
+    var scanEventIdCounter = 0;
     var from = (timestamp - before).ToUniversalTime();
     var to = (timestamp + after).ToUniversalTime();
 
@@ -63,7 +64,8 @@ public class EventLogScannerService
               EventId = record.Id,
               Message = record.FormatDescription() ?? string.Empty,
               MachineName = record.MachineName ?? Environment.MachineName,
-              ScanSessionId = Guid.Empty // To be set by caller
+              ScanSessionId = Guid.Empty, // To be set by caller
+              ScanEventId = Interlocked.Increment(ref scanEventIdCounter)
             };
             lock (entries) {
               entries.Add(entry);

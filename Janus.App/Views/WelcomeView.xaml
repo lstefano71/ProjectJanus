@@ -31,7 +31,7 @@
           <StackPanel DataContext="{Binding SelectedRecentSnapshot}">
             <TextBlock Text="{Binding FilePath}" FontWeight="SemiBold" FontSize="12" TextWrapping="Wrap"/>
             <TextBlock Text="{Binding Error}" Foreground="Red" FontSize="12"/>
-            <StackPanel DataContext="{Binding Metadata}">
+            <StackPanel>
               <Grid Margin="0,8,0,0">
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="110"/>
@@ -45,15 +45,15 @@
                   <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Timestamp:" FontWeight="SemiBold"/>
-                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Timestamp}"/>
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding MetadataSession.Timestamp}"/>
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Window:" FontWeight="SemiBold"/>
-                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Window}"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding MetadataSession.Window}"/>
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Machine:" FontWeight="SemiBold"/>
-                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding MachineName}"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding MetadataSession.MachineName}"/>
                 <TextBlock Grid.Row="3" Grid.Column="0" Text="User Notes:" FontWeight="SemiBold"/>
-                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding UserNotes}" TextWrapping="Wrap"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding MetadataSession.UserNotes}" TextWrapping="Wrap"/>
                 <TextBlock Grid.Row="4" Grid.Column="0" Text="Events:" FontWeight="SemiBold"/>
-                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Entries.Count}"/>
+                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding MetadataEventCount}"/>
               </Grid>
             </StackPanel>
           </StackPanel>

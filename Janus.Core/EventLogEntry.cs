@@ -14,4 +14,6 @@ public class EventLogEntry
   public required string Message { get; init; }
   public required string MachineName { get; init; }
   public required Guid ScanSessionId { get; init; }
+  // Unique, sequential, human-friendly ID for this scan
+  public int ScanEventId { get; set; }
 }

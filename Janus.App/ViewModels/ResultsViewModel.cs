@@ -5,6 +5,7 @@ using Microsoft.Win32;
 
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Data;
@@ -16,6 +17,7 @@ public class EventLogEntryDisplay(EventLogEntry entry)
 {
   private readonly EventLogEntry entry = entry;
 
+  public int ScanEventId => entry.ScanEventId;
   public long Id => entry.Id;
   public string LogName => entry.LogName;
   public DateTime TimeCreated => entry.TimeCreated;
@@ -287,9 +289,18 @@ public partial class ResultsViewModel : INotifyPropertyChanged
       var vm = (SaveSnapshotDialogViewModel)dialog.DataContext;
       var saveFileDialog = new SaveFileDialog {
         Filter = "Janus Snapshot (*.janus)|*.janus",
-        DefaultExt = "janus"
+        DefaultExt = "janus",
       };
       if (saveFileDialog.ShowDialog() == true && Metadata is not null) {
+        var filePath = saveFileDialog.FileName;
+        if (File.Exists(filePath)) {
+          try {
+            File.Delete(filePath);
+          } catch (Exception ex) {
+            MessageBox.Show($"Failed to delete existing file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+          }
+        }
         var updatedSession = new ScanSession {
           Id = Metadata.Id,
           Timestamp = Metadata.Timestamp,
@@ -301,9 +312,9 @@ public partial class ResultsViewModel : INotifyPropertyChanged
           Entries = Metadata.Entries
         };
         var service = new SnapshotService();
-        await SnapshotService.SaveSnapshotAsync(saveFileDialog.FileName, updatedSession);
-        await UserUiSettingsService.AddRecentSnapshotAsync(saveFileDialog.FileName);
-        MessageBox.Show($"Snapshot saved successfully at: {saveFileDialog.FileName}.",
+        await SnapshotService.SaveSnapshotAsync(filePath, updatedSession);
+        await UserUiSettingsService.AddRecentSnapshotAsync(filePath);
+        MessageBox.Show($"Snapshot saved successfully at: {filePath}.",
           "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
         SetMetadata(updatedSession);

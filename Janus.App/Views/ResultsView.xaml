@@ -66,7 +66,7 @@
     <!-- Filters and Status -->
     <Grid Grid.Column="2" Grid.Row="0" Margin="0,0,0,10">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="Auto" MinWidth="200"/>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="180"/>
         <ColumnDefinition Width="180"/>
@@ -177,6 +177,7 @@
           </Style>
         </DataGrid.RowStyle>
         <DataGrid.Columns>
+          <DataGridTextColumn Header="ScanEventId" Binding="{Binding ScanEventId}" Width="Auto" IsReadOnly="True"/>
           <DataGridTextColumn Header="Time" Binding="{Binding TimeCreatedIso}" Width="Auto" IsReadOnly="True"/>
           <DataGridTextColumn Header="Log" Binding="{Binding LogName}" Width="Auto" IsReadOnly="True"/>
           <DataGridTextColumn Header="Level" Binding="{Binding Level}" Width="Auto" IsReadOnly="True"/>
