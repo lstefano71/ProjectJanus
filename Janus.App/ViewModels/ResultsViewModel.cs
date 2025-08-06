@@ -34,6 +34,8 @@ public class EventLogEntryDisplay
 
 public partial class ResultsViewModel : INotifyPropertyChanged
 {
+  public enum PreviousView { Welcome, LiveScan }
+
   private readonly UserUiSettingsService uiSettingsService = UserUiSettingsService.Instance;
   private readonly System.Timers.Timer debounceTimer;
   private bool pendingSave;
@@ -145,17 +147,24 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   public int EventCount => EventsView.Cast<object>().Count();
   public ICommand CopyMessageCommand { get; }
   public ICommand SaveSnapshotCommand { get; }
+  public ICommand BackCommand { get; }
   public ScanSession? Metadata { get; private set; }
   public string MetadataTimestampLocal => Metadata?.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") ?? "";
   public string MetadataSnapshotCreatedLocal => Metadata?.SnapshotCreated.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") ?? "";
 
-  public ResultsViewModel()
+  private readonly Action<object>? setCurrentView;
+  private readonly PreviousView previousView;
+
+  public ResultsViewModel(Action<object>? setCurrentView = null, PreviousView previousView = PreviousView.Welcome)
   {
+    this.setCurrentView = setCurrentView;
+    this.previousView = previousView;
     EventsView = CollectionViewSource.GetDefaultView(Events);
     EventsView.Filter = o => FilterPredicate(o as EventLogEntryDisplay);
     CopyMessageCommand = new RelayCommand(_ => CopyMessage(), _ => SelectedEvent is not null);
     SaveSnapshotCommand = new RelayCommand(_ => SaveSnapshot());
     ToggleLogLevelCommand = new RelayCommand(ToggleLogLevel);
+    BackCommand = new RelayCommand(_ => GoBack(), _ => setCurrentView != null);
     debounceTimer = new System.Timers.Timer(500) { AutoReset = false };
     debounceTimer.Elapsed += async (_, __) => {
       if (pendingSave) {
@@ -164,6 +173,15 @@ public partial class ResultsViewModel : INotifyPropertyChanged
       }
     };
     _ = LoadUiSettingsAsync();
+  }
+
+  private void GoBack()
+  {
+    if (setCurrentView == null) return;
+    if (previousView == PreviousView.LiveScan)
+      setCurrentView(new LiveScanViewModel(setCurrentView));
+    else
+      setCurrentView(new WelcomeViewModel(setCurrentView));
   }
 
   public void LoadEvents(IEnumerable<EventLogEntry> events)

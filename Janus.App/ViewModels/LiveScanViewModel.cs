@@ -54,6 +54,7 @@ public class LiveScanViewModel : INotifyPropertyChanged
   public ICommand ScanCommand { get; }
   public ICommand CancelCommand { get; }
   public ICommand SetNowCommand { get; }
+  public ICommand BackCommand { get; }
 
   public LiveScanViewModel(Action<object>? setCurrentView = null)
   {
@@ -61,7 +62,13 @@ public class LiveScanViewModel : INotifyPropertyChanged
     ScanCommand = new RelayCommand(async _ => await ScanAsync(), _ => cts is null);
     CancelCommand = new RelayCommand(_ => CancelScan(), _ => cts is not null);
     SetNowCommand = new RelayCommand(_ => SetNow());
+    BackCommand = new RelayCommand(_ => GoBack(), _ => setCurrentView != null);
     _ = LoadUiSettingsAsync();
+  }
+
+  private void GoBack()
+  {
+    setCurrentView?.Invoke(new WelcomeViewModel(setCurrentView!));
   }
 
   private async Task LoadUiSettingsAsync()
@@ -101,7 +108,7 @@ public class LiveScanViewModel : INotifyPropertyChanged
       ScanStatus = "Scan complete";
       // NAVIGATE TO RESULTS VIEW
       if (setCurrentView != null) {
-        var resultsVm = new ResultsViewModel();
+        var resultsVm = new ResultsViewModel(setCurrentView, ResultsViewModel.PreviousView.LiveScan);
         resultsVm.LoadEvents(results);
         resultsVm.SetMetadata(new ScanSession {
           Id = Guid.NewGuid(),

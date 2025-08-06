@@ -20,6 +20,7 @@ namespace Janus.App.Services
       public double MainWindowHeight { get; set; } = 400;
       public double ResultsSplitterPosition { get; set; } = 0.5; // Relative position (0-1)
       public double DetailsSplitterPosition { get; set; } = 0.33; // Relative position (0-1)
+      public List<string> RecentSnapshots { get; set; } = new(); // List of recent snapshot file paths
                                                                   // Add other UI parameters here as needed
     }
 
