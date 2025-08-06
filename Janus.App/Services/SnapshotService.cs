@@ -14,7 +14,7 @@ public class SnapshotService
   {
     try {
       var options = new DbContextOptionsBuilder<EventSnapshotDbContext>()
-          .UseSqlite($"Data Source={filePath}")
+          .UseSqlite($"Data Source={filePath};Pooling=false")
           .Options;
       await using var db = new EventSnapshotDbContext(options);
       await db.Database.EnsureCreatedAsync();
