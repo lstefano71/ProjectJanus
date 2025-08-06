@@ -1,3 +1,5 @@
+using System.Windows.Documents;
+using System.Windows.Media;
 using Janus.App.Services;
 using Janus.Core;
 
@@ -16,10 +18,12 @@ namespace Janus.App;
 public class EventLogEntryDisplay : INotifyPropertyChanged
 {
   private readonly EventLogEntry entry;
+  private readonly Func<string> getSearchText;
 
-  public EventLogEntryDisplay(EventLogEntry entry)
+  public EventLogEntryDisplay(EventLogEntry entry, Func<string>? getSearchText = null)
   {
     this.entry = entry;
+    this.getSearchText = getSearchText ?? (() => string.Empty);
   }
 
   public int ScanEventId => entry.ScanEventId;
@@ -34,6 +38,35 @@ public class EventLogEntryDisplay : INotifyPropertyChanged
   public Guid ScanSessionId => entry.ScanSessionId;
   // Display ISO 8601 format with microseconds (6 digits)
   public string TimeCreatedIso => entry.TimeCreated.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.ffffff'Z'");
+
+  public IEnumerable<Inline> MessageInlines {
+    get {
+      var message = entry.Message ?? string.Empty;
+      var search = getSearchText();
+      if (string.IsNullOrEmpty(search))
+        return new Inline[] { new Run(message) };
+      var inlines = new List<Inline>();
+      int idx = 0;
+      int searchLen = search.Length;
+      var comparison = StringComparison.OrdinalIgnoreCase;
+      while (idx < message.Length) {
+        int matchIdx = message.IndexOf(search, idx, comparison);
+        if (matchIdx < 0) {
+          inlines.Add(new Run(message.Substring(idx)));
+          break;
+        }
+        if (matchIdx > idx)
+          inlines.Add(new Run(message.Substring(idx, matchIdx - idx)));
+        var highlight = new Run(message.Substring(matchIdx, searchLen)) {
+          Background = Brushes.Yellow,
+          Foreground = Brushes.Black
+        };
+        inlines.Add(highlight);
+        idx = matchIdx + searchLen;
+      }
+      return inlines;
+    }
+  }
 
   public event PropertyChangedEventHandler? PropertyChanged;
 }
@@ -360,7 +393,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     Sources.Clear();
     LogNames.Clear();
     foreach (var e in events) {
-      Events.Add(new EventLogEntryDisplay(e));
+      Events.Add(new EventLogEntryDisplay(e, () => SearchText));
       if (!LogLevels.Contains(e.Level))
         LogLevels.Add(e.Level);
       if (!Sources.Contains(e.Source))

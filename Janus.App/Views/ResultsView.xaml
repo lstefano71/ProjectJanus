@@ -267,20 +267,19 @@
           </TextBlock>
         </StackPanel>
         <GridSplitter Grid.Column="1" Width="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#DDD" ShowsPreview="True" AutomationProperties.Name="vSplitter" />
-        <TextBox Grid.Column="2"
-         Text="{Binding SelectedEvent.Message, Mode=OneWay}"
-         IsReadOnly="True"
-         AcceptsReturn="True"
-         TextWrapping="Wrap"
-         FontFamily="Consolas"
-         FontSize="12"
-         VerticalScrollBarVisibility="Auto"
-         HorizontalAlignment="Stretch"
-         VerticalAlignment="Stretch"
-         Margin="0,0,0,0"
-         MinHeight="0"
-         MinWidth="0"
-         MaxWidth="Infinity" />
+        <TextBlock Grid.Column="2"
+                   TextWrapping="Wrap"
+                   FontFamily="Consolas"
+                   FontSize="12"
+                   HorizontalAlignment="Stretch"
+                   VerticalAlignment="Stretch"
+                   Margin="0,0,0,0"
+                   MinHeight="0"
+                   MinWidth="0"
+                   MaxWidth="Infinity"
+                   TextTrimming="CharacterEllipsis"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto"
+                   helpers:InlineHelper.InlinesSource="{Binding SelectedEvent.MessageInlines}" />
       </Grid>
     </Grid>
     <!-- Save Snapshot button at bottom right -->
