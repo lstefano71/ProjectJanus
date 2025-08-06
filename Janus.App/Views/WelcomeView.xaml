@@ -11,8 +11,8 @@
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0" Margin="20,20,20,20">
-      <Button Content="New Live Scan" Command="{Binding NewScanCommand}" Width="200" Height="40" Margin="0,0,0,20"/>
-      <Button Content="Open Snapshot..." Command="{Binding OpenSnapshotCommand}" Width="200" Height="40"/>
+      <Button x:Name="NewScanButton" Content="_New Live Scan" Command="{Binding NewScanCommand}" Width="200" Height="40" Margin="0,0,0,20" IsDefault="True"/>
+      <Button Content="_Open Snapshot..." Command="{Binding OpenSnapshotCommand}" Width="200" Height="40"/>
     </StackPanel>
     <Border Grid.Row="1" Margin="40" Padding="16" Background="#F7F9FC" CornerRadius="8" BorderBrush="#B0C4DE" BorderThickness="1">
       <DockPanel>
@@ -23,7 +23,9 @@
                              SelectedItem="{Binding SelectedRecentSnapshot, Mode=TwoWay}"
                              DisplayMemberPath="FileName"
                              Height="200"
-                             MouseDoubleClick="RecentSnapshotsListBox_MouseDoubleClick"/>
+                             IsTabStop="True"
+                             KeyboardNavigation.TabIndex="2"
+                             KeyDown="RecentSnapshotsListBox_KeyDown"/>
         </StackPanel>
         <Separator Width="16" Visibility="Hidden"/>
         <StackPanel>
@@ -57,7 +59,7 @@
               </Grid>
             </StackPanel>
           </StackPanel>
-          <Button Content="Load Snapshot" 
+          <Button Content="_Load Snapshot" 
                           Width="120" 
                           Height="30" 
                           Margin="0,10,0,0"
@@ -65,7 +67,8 @@
                   VerticalAlignment="Bottom"
                   Command="{Binding OpenRecentSnapshotCommand}"
                   CommandParameter="{Binding SelectedRecentSnapshot}"
-                  IsEnabled="{Binding SelectedRecentSnapshot, Converter={StaticResource NullToBoolConverter}}"/>
+                  IsEnabled="{Binding SelectedRecentSnapshot, Converter={StaticResource NullToBoolConverter}}"
+                  KeyboardNavigation.TabIndex="3"/>
         </StackPanel>
       </DockPanel>
     </Border>
