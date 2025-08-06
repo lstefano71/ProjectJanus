@@ -23,19 +23,19 @@
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
             <TextBlock Text="Timestamp of Interest:" VerticalAlignment="Center" Margin="0,0,10,0"/>
-            <DatePicker SelectedDate="{Binding Timestamp}" Width="140"/>
-            <TextBox Text="{Binding TimeOfDay}" Width="100" Margin="10,0,0,0"/>
+            <DatePicker x:Name="TimestampPicker" SelectedDate="{Binding Timestamp}" Width="140" FocusManager.FocusedElement="{Binding RelativeSource={RelativeSource Self}}"/>
+            <TextBox x:Name="TimeOfDayBox" Text="{Binding TimeOfDay}" Width="100" Margin="10,0,0,0"/>
             <Button Content="Now" Command="{Binding SetNowCommand}" Margin="10,0,0,0"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,0,0,10">
             <TextBlock Text="Minutes Before:" VerticalAlignment="Center" Margin="0,0,10,0"/>
-            <TextBox Text="{Binding MinutesBefore}" Width="60"/>
+            <TextBox x:Name="MinutesBeforeBox" Text="{Binding MinutesBefore, Mode=TwoWay}" Width="60"/>
             <TextBlock Text="Minutes After:" VerticalAlignment="Center" Margin="20,0,10,0"/>
-            <TextBox Text="{Binding MinutesAfter}" Width="60"/>
+            <TextBox x:Name="MinutesAfterBox" Text="{Binding MinutesAfter, Mode=TwoWay}" Width="60"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="0,0,0,10">
-            <Button Content="Scan Events" Command="{Binding ScanCommand}" Width="120"/>
-            <Button Content="Cancel" Command="{Binding CancelCommand}" Width="80" Margin="10,0,0,0"/>
+            <Button Content="Scan Events" Command="{Binding ScanCommand}" Width="120" IsDefault="True"/>
+            <Button Content="Cancel" Command="{Binding CancelCommand}" Width="80" Margin="10,0,0,0" IsCancel="True"/>
         </StackPanel>
         <TextBlock Grid.Row="4" Text="{Binding ScanStatus}" FontWeight="Bold" Foreground="DarkBlue" Margin="0,0,0,10"/>
         <!-- Back button in lower left -->

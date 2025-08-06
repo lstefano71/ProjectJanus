@@ -69,7 +69,7 @@ public class EventLogScannerService
             };
             lock (entries) {
               entries.Add(entry);
-              eventCount++;
+              Interlocked.Increment(ref eventCount);
             }
             progress?.Report(($"Scanning: {logName} | {eventCount} events", eventCount));
           }
