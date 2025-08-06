@@ -10,7 +10,7 @@ namespace Janus.App;
 /// </summary>
 public class SnapshotService
 {
-  public async Task SaveSnapshotAsync(string filePath, ScanSession session)
+  public static async Task SaveSnapshotAsync(string filePath, ScanSession session)
   {
     try {
       var options = new DbContextOptionsBuilder<EventSnapshotDbContext>()
@@ -35,7 +35,7 @@ public class SnapshotService
     }
   }
 
-  public async Task<ScanSession?> LoadSnapshotAsync(string filePath)
+  public static async Task<ScanSession?> LoadSnapshotAsync(string filePath)
   {
     try {
       var options = new DbContextOptionsBuilder<EventSnapshotDbContext>()

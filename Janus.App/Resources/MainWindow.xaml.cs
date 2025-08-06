@@ -15,15 +15,12 @@ public partial class MainWindow : Window
   public MainWindow()
   {
     // Load settings synchronously before window is shown
-    Initialized += async(s,e) => {
-      try
-      {
-        var settings = await uiSettingsService.LoadAsync();
+    Initialized += async (s, e) => {
+      try {
+        var settings = await UserUiSettingsService.LoadAsync();
         Width = settings.MainWindowWidth;
         Height = settings.MainWindowHeight;
-      }
-      catch (Exception ex)
-      {
+      } catch (Exception ex) {
         // Handle exceptions if needed, e.g., log them
         MessageBox.Show($"Error loading settings: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
       }
@@ -31,7 +28,7 @@ public partial class MainWindow : Window
     InitializeComponent();
     DataContext = new MainWindowViewModel();
     SizeChanged += MainWindow_SizeChanged;
-    
+
   }
 
   private void MainWindow_SizeChanged(object? sender, SizeChangedEventArgs e)
@@ -41,10 +38,10 @@ public partial class MainWindow : Window
 
   private async Task SaveWindowSizeAsync()
   {
-    var settings = await uiSettingsService.LoadAsync();
+    var settings = await UserUiSettingsService.LoadAsync();
     settings.MainWindowWidth = Width;
     settings.MainWindowHeight = Height;
-    await uiSettingsService.SaveAsync(settings);
+    await UserUiSettingsService.SaveAsync(settings);
   }
 
   private void OnAboutClick(object sender, RoutedEventArgs e)

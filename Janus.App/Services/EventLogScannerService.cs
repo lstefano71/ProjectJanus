@@ -30,7 +30,7 @@ public class EventLogScannerService
   /// <param name="progress">Progress reporter for scan status and event count.</param>
   /// <param name="cancellationToken">Cancellation token for scan operation.</param>
   /// <returns>List of EventLogEntry objects found.</returns>
-  public async Task<IReadOnlyList<EventLogEntry>> ScanAllLogsAsync(
+  public static async Task<IReadOnlyList<EventLogEntry>> ScanAllLogsAsync(
       DateTime timestamp,
       TimeSpan before,
       TimeSpan after,

@@ -9,17 +9,13 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace Janus.App;
 
-public class EventLogEntryDisplay
+public class EventLogEntryDisplay(EventLogEntry entry)
 {
-  private readonly EventLogEntry entry;
-  public EventLogEntryDisplay(EventLogEntry entry)
-  {
-    this.entry = entry;
-  }
+  private readonly EventLogEntry entry = entry;
+
   public long Id => entry.Id;
   public string LogName => entry.LogName;
   public DateTime TimeCreated => entry.TimeCreated;
@@ -65,7 +61,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     }
   }
 
-  public ObservableCollection<EventLogEntryDisplay> Events { get; } = new();
+  public ObservableCollection<EventLogEntryDisplay> Events { get; } = [];
   private ICollectionView _eventsView;
   public ICollectionView EventsView {
     get => _eventsView;
@@ -90,8 +86,8 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   public string EventCountStatus => $"{EventCount} / {TotalEventCount} events";
 
   // Log level filter options
-  public ObservableCollection<string> LogLevels { get; } = new() { "Critical", "Error", "Warning", "Information", "Verbose" };
-  private ObservableCollection<string> selectedLogLevels = new();
+  public ObservableCollection<string> LogLevels { get; } = ["Critical", "Error", "Warning", "Information", "Verbose"];
+  private ObservableCollection<string> selectedLogLevels = [];
   public ObservableCollection<string> SelectedLogLevels {
     get => selectedLogLevels;
     set {
@@ -112,9 +108,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   private void ToggleLogLevel(object? level)
   {
     if (level is string logLevel) {
-      if (SelectedLogLevels.Contains(logLevel))
-        SelectedLogLevels.Remove(logLevel);
-      else
+      if (!SelectedLogLevels.Remove(logLevel))
         SelectedLogLevels.Add(logLevel);
       OnPropertyChanged(nameof(SelectedLogLevelsDisplay));
       RebuildView(); // Call the new rebuild method
@@ -126,7 +120,8 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   private bool isGroupingEnabled;
   public bool IsGroupingEnabled {
     get => isGroupingEnabled;
-    set { isGroupingEnabled = value; OnPropertyChanged(); UpdateGrouping();
+    set {
+      isGroupingEnabled = value; OnPropertyChanged(); UpdateGrouping();
       OnPropertyChanged(nameof(IsAnyGroupingEnabled)); // Notify combined property
     }
   }
@@ -173,7 +168,8 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   private string searchText = string.Empty;
   public string SearchText {
     get => searchText;
-    set { searchText = value; 
+    set {
+      searchText = value;
       OnPropertyChanged();
       RebuildView(); // Call the new rebuild method
     }
@@ -305,9 +301,9 @@ public partial class ResultsViewModel : INotifyPropertyChanged
           Entries = Metadata.Entries
         };
         var service = new SnapshotService();
-        await service.SaveSnapshotAsync(saveFileDialog.FileName, updatedSession);
-        await UserUiSettingsService.Instance.AddRecentSnapshotAsync(saveFileDialog.FileName);
-        MessageBox.Show($"Snapshot saved successfully at: {saveFileDialog.FileName}.", 
+        await SnapshotService.SaveSnapshotAsync(saveFileDialog.FileName, updatedSession);
+        await UserUiSettingsService.AddRecentSnapshotAsync(saveFileDialog.FileName);
+        MessageBox.Show($"Snapshot saved successfully at: {saveFileDialog.FileName}.",
           "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
         SetMetadata(updatedSession);
@@ -318,17 +314,17 @@ public partial class ResultsViewModel : INotifyPropertyChanged
 
   private async Task LoadUiSettingsAsync()
   {
-    var settings = await uiSettingsService.LoadAsync();
+    var settings = await UserUiSettingsService.LoadAsync();
     ResultsSplitterPosition = settings.ResultsSplitterPosition;
     DetailsSplitterPosition = settings.DetailsSplitterPosition;
   }
 
   private async Task SaveUiSettingsAsync()
   {
-    var settings = await uiSettingsService.LoadAsync();
+    var settings = await UserUiSettingsService.LoadAsync();
     settings.ResultsSplitterPosition = ResultsSplitterPosition;
     settings.DetailsSplitterPosition = DetailsSplitterPosition;
-    await uiSettingsService.SaveAsync(settings);
+    await UserUiSettingsService.SaveAsync(settings);
   }
 
   private void DebounceSave()

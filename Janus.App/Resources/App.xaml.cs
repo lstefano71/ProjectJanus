@@ -30,7 +30,7 @@ public partial class App : Application
     }
   }
 
-  private void LogException(Exception ex)
+  private static void LogException(Exception ex)
   {
     try {
       var path = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "janus-crash.log");

@@ -57,7 +57,7 @@ public class LiveScanViewModel : INotifyPropertyChanged
       if (isScanInProgress != value) {
         isScanInProgress = value;
         OnPropertyChanged();
-        (BackCommand as RelayCommand)?.RaiseCanExecuteChanged();
+        RelayCommand.RaiseCanExecuteChanged();
       }
     }
   }
@@ -84,17 +84,17 @@ public class LiveScanViewModel : INotifyPropertyChanged
 
   private async Task LoadUiSettingsAsync()
   {
-    var settings = await uiSettingsService.LoadAsync();
+    var settings = await UserUiSettingsService.LoadAsync();
     MinutesBefore = settings.MinutesBefore;
     MinutesAfter = settings.MinutesAfter;
   }
 
   private async Task SaveUiSettingsAsync()
   {
-    var settings = await uiSettingsService.LoadAsync();
+    var settings = await UserUiSettingsService.LoadAsync();
     settings.MinutesBefore = MinutesBefore;
     settings.MinutesAfter = MinutesAfter;
-    await uiSettingsService.SaveAsync(settings);
+    await UserUiSettingsService.SaveAsync(settings);
   }
 
   private void SetNow()
@@ -116,7 +116,7 @@ public class LiveScanViewModel : INotifyPropertyChanged
       ScanStatus = tuple.status;
     });
     try {
-      var results = await service.ScanAllLogsAsync(scanTimestamp, before, after, progress, cts.Token);
+      var results = await EventLogScannerService.ScanAllLogsAsync(scanTimestamp, before, after, progress, cts.Token);
       ScanStatus = "Scan complete";
       // NAVIGATE TO RESULTS VIEW
       if (setCurrentView != null) {
@@ -130,7 +130,7 @@ public class LiveScanViewModel : INotifyPropertyChanged
           SnapshotCreated = DateTime.UtcNow,
           MachineName = Environment.MachineName,
           UserNotes = string.Empty,
-          Entries = results.ToList()
+          Entries = [.. results]
         });
         setCurrentView(new ResultsView { DataContext = resultsVm });
       }

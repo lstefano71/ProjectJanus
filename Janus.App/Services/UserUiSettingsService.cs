@@ -20,11 +20,11 @@ namespace Janus.App.Services
       public double MainWindowHeight { get; set; } = 400;
       public double ResultsSplitterPosition { get; set; } = 0.5; // Relative position (0-1)
       public double DetailsSplitterPosition { get; set; } = 0.33; // Relative position (0-1)
-      public List<string> RecentSnapshots { get; set; } = new(); // List of recent snapshot file paths
-                                                                  // Add other UI parameters here as needed
+      public List<string> RecentSnapshots { get; set; } = []; // List of recent snapshot file paths
+                                                              // Add other UI parameters here as needed
     }
 
-    public async Task<UiSettings> LoadAsync()
+    public static async Task<UiSettings> LoadAsync()
     {
       await fileLock.WaitAsync();
       try {
@@ -43,7 +43,7 @@ namespace Janus.App.Services
       }
     }
 
-    public async Task SaveAsync(UiSettings settings)
+    public static async Task SaveAsync(UiSettings settings)
     {
       await fileLock.WaitAsync();
       try {
@@ -55,7 +55,7 @@ namespace Janus.App.Services
     }
 
     // Adds a snapshot to the MRU list, deduplicates, culls to 10, and saves settings
-    public async Task AddRecentSnapshotAsync(string filePath)
+    public static async Task AddRecentSnapshotAsync(string filePath)
     {
       var settings = await LoadAsync();
       settings.RecentSnapshots.Remove(filePath);

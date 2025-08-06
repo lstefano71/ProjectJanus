@@ -16,8 +16,8 @@ public partial class ResultsView : UserControl
 
   private void UserControl_Loaded(object sender, RoutedEventArgs e)
   {
-    var hSplitter = FindName("ResultsSplitter") as GridSplitter;
-    var vSplitter = FindName("DetailsSplitter") as GridSplitter;
+    _ = FindName("ResultsSplitter") as GridSplitter;
+    _ = FindName("DetailsSplitter") as GridSplitter;
 
     //hSplitter.= uiSettings.UiSettings.ResultsSplitterPosition;
     //vSplitter.Position = uiSettings.UiSettings.DetailsSplitterPosition;

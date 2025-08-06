@@ -2,16 +2,10 @@ using System.Windows.Input;
 
 namespace Janus.App;
 
-public class RelayCommand : ICommand
+public class RelayCommand(Action<object?> execute, Predicate<object?>? canExecute = null) : ICommand
 {
-  private readonly Action<object?> execute;
-  private readonly Predicate<object?>? canExecute;
-
-  public RelayCommand(Action<object?> execute, Predicate<object?>? canExecute = null)
-  {
-    this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
-    this.canExecute = canExecute;
-  }
+  private readonly Action<object?> execute = execute ?? throw new ArgumentNullException(nameof(execute));
+  private readonly Predicate<object?>? canExecute = canExecute;
 
   public bool CanExecute(object? parameter) => canExecute?.Invoke(parameter) ?? true;
   public void Execute(object? parameter) => execute(parameter);
@@ -20,23 +14,18 @@ public class RelayCommand : ICommand
     remove { CommandManager.RequerySuggested -= value; }
   }
 
-  public void RaiseCanExecuteChanged() {
+  public static void RaiseCanExecuteChanged()
+  {
     CommandManager.InvalidateRequerySuggested();
   }
 }
 
 // AsyncRelayCommand for async/await command support
-public class AsyncRelayCommand : ICommand
+public class AsyncRelayCommand(Func<Task> execute, Func<bool>? canExecute = null) : ICommand
 {
-  private readonly Func<Task> execute;
-  private readonly Func<bool>? canExecute;
+  private readonly Func<Task> execute = execute ?? throw new ArgumentNullException(nameof(execute));
+  private readonly Func<bool>? canExecute = canExecute;
   private bool isExecuting;
-
-  public AsyncRelayCommand(Func<Task> execute, Func<bool>? canExecute = null)
-  {
-    this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
-    this.canExecute = canExecute;
-  }
 
   public bool CanExecute(object? parameter) => !isExecuting && (canExecute?.Invoke() ?? true);
 

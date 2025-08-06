@@ -13,8 +13,7 @@ public partial class WelcomeView : UserControl
 
   private void RecentSnapshotsListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
   {
-    if (DataContext is WelcomeViewModel vm && sender is ListBox lb && lb.SelectedItem is RecentSnapshotInfo info)
-    {
+    if (DataContext is WelcomeViewModel vm && sender is ListBox lb && lb.SelectedItem is RecentSnapshotInfo info) {
       if (vm.OpenRecentSnapshotCommand.CanExecute(info))
         vm.OpenRecentSnapshotCommand.Execute(info);
     }
@@ -22,8 +21,7 @@ public partial class WelcomeView : UserControl
 
   private void WelcomeView_Loaded(object sender, System.Windows.RoutedEventArgs e)
   {
-    if (DataContext is WelcomeViewModel vm && RecentSnapshotsListBox.Items.Count > 0 && RecentSnapshotsListBox.SelectedIndex == -1)
-    {
+    if (DataContext is WelcomeViewModel && RecentSnapshotsListBox.Items.Count > 0 && RecentSnapshotsListBox.SelectedIndex == -1) {
       RecentSnapshotsListBox.SelectedIndex = 0;
     }
   }

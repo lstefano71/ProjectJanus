@@ -9,9 +9,9 @@ public class FirstLineConverter : IValueConverter
   {
     if (value is string s) {
       var idx = s.IndexOf('\n');
-      if (idx >= 0) return s.Substring(0, idx);
+      if (idx >= 0) return s[..idx];
       idx = s.IndexOf('\r');
-      if (idx >= 0) return s.Substring(0, idx);
+      if (idx >= 0) return s[..idx];
       return s;
     }
     return value;
