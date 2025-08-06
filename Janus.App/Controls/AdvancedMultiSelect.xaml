@@ -1,0 +1,96 @@
+<UserControl x:Class="Janus.App.Controls.AdvancedMultiSelect"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Janus.App.Controls"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="400" d:DesignWidth="300">
+    <Expander IsExpanded="True">
+        <Expander.Header>
+            <TextBlock Text="{Binding Header, RelativeSource={RelativeSource AncestorType=UserControl}}" FontWeight="Bold" />
+        </Expander.Header>
+        <Border BorderBrush="{DynamicResource ControlBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="4" Background="{DynamicResource ControlBackgroundBrush}">
+            <DockPanel>
+                <!-- Search and Buttons -->
+                <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <controls:TextBoxWithPlaceholder
+                        Grid.Column="0"
+                        Text="{Binding SearchText, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Placeholder="{Binding PlaceholderText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        Height="28" Margin="0,0,4,0" HorizontalAlignment="Stretch" />
+                    <Button Grid.Column="1" Width="28" Height="28"
+                            Command="{Binding ShowOnlySelectedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            Margin="0,0,4,0"
+                            ToolTip="Show only selected"
+                            AutomationProperties.Name="Show Only Selected"
+                            AutomationProperties.HelpText="Show only selected items">
+                        <Button.Content>
+                            <Viewbox Width="16" Height="16">
+                                <Canvas Width="16" Height="16">
+                                    <Path Data="M2,8 L6,12 L14,4" Stroke="{DynamicResource ControlForegroundBrush}" StrokeThickness="2" Fill="Transparent"/>
+                                </Canvas>
+                            </Viewbox>
+                        </Button.Content>
+                    </Button>
+                    <Button Grid.Column="2" Width="28" Height="28"
+                            Command="{Binding SelectAllVisibleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            ToolTip="Select all visible"
+                            AutomationProperties.Name="Select All Visible"
+                            AutomationProperties.HelpText="Select all visible items">
+                        <Button.Content>
+                            <Viewbox Width="16" Height="16">
+                                <Canvas Width="16" Height="16">
+                                    <Rectangle Width="12" Height="12" Stroke="{DynamicResource ControlForegroundBrush}" StrokeThickness="2" Fill="Transparent" Canvas.Left="2" Canvas.Top="2"/>
+                                    <Path Data="M4,8 L7,11 L12,5" Stroke="{DynamicResource ControlForegroundBrush}" StrokeThickness="2" Fill="Transparent"/>
+                                </Canvas>
+                            </Viewbox>
+                        </Button.Content>
+                    </Button>
+                </Grid>
+                <!-- Virtualized List -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="220">
+                    <ItemsControl ItemsSource="{Binding FilteredItems, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox
+                                          IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                          Command="{Binding DataContext.ItemToggleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                          CommandParameter="{Binding Value}"
+                                          Background="{DynamicResource ControlBackgroundBrush}"
+                                          Foreground="{DynamicResource ControlForegroundBrush}"
+                                          AutomationProperties.Name="{Binding DisplayText}"
+                                          AutomationProperties.HelpText="Select or deselect item">
+                                    <CheckBox.ToolTip>
+                                        <TextBlock>
+                                            <Run Text="{Binding DisplayText}"/>
+                                            <Run Text=" ("/>
+                                            <Run Text="{Binding Count}"/>
+                                            <Run Text=")"/>
+                                        </TextBlock>
+                                    </CheckBox.ToolTip>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding DisplayText}" />
+                                        <TextBlock Text=" ("/>
+                                        <TextBlock Text="{Binding Count}" />
+                                        <TextBlock Text=")"/>
+                                    </StackPanel>
+                                </CheckBox>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+    </Expander>
+</UserControl>

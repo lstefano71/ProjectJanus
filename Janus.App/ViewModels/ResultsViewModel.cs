@@ -108,6 +108,49 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     }
   }
   public string SelectedLogLevelsDisplay => SelectedLogLevels.Count == 0 ? "All Levels" : string.Join(", ", SelectedLogLevels);
+
+  // Source filter options
+  public ObservableCollection<string> Sources { get; } = [];
+  private ObservableCollection<string> selectedSources = [];
+  public ObservableCollection<string> SelectedSources {
+    get => selectedSources;
+    set {
+      selectedSources = value;
+      OnPropertyChanged();
+      EventsView.Refresh();
+    }
+  }
+
+  // Log name filter options
+  public ObservableCollection<string> LogNames { get; } = [];
+  private ObservableCollection<string> selectedLogNames = [];
+  public ObservableCollection<string> SelectedLogNames {
+    get => selectedLogNames;
+    set {
+      selectedLogNames = value;
+      OnPropertyChanged();
+      EventsView.Refresh();
+    }
+  }
+
+  // Count providers for cross-filtering
+  public Func<object, int> LogLevelCountProvider => item =>
+    Events.Count(e =>
+      (SelectedSources.Count == 0 || SelectedSources.Contains(e.Source)) &&
+      (SelectedLogNames.Count == 0 || SelectedLogNames.Contains(e.LogName)) &&
+      e.Level == (item as string));
+
+  public Func<object, int> SourceCountProvider => item =>
+    Events.Count(e =>
+      (SelectedLogLevels.Count == 0 || SelectedLogLevels.Contains(e.Level)) &&
+      (SelectedLogNames.Count == 0 || SelectedLogNames.Contains(e.LogName)) &&
+      e.Source == (item as string));
+
+  public Func<object, int> LogNameCountProvider => item =>
+    Events.Count(e =>
+      (SelectedLogLevels.Count == 0 || SelectedLogLevels.Contains(e.Level)) &&
+      (SelectedSources.Count == 0 || SelectedSources.Contains(e.Source)) &&
+      e.LogName == (item as string));
   private bool isLogLevelPopupOpen;
   public bool IsLogLevelPopupOpen {
     get => isLogLevelPopupOpen;
@@ -296,10 +339,16 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   public void LoadEvents(IEnumerable<EventLogEntry> events)
   {
     Events.Clear();
+    Sources.Clear();
+    LogNames.Clear();
     foreach (var e in events) {
       Events.Add(new EventLogEntryDisplay(e));
       if (!LogLevels.Contains(e.Level))
         LogLevels.Add(e.Level);
+      if (!Sources.Contains(e.Source))
+        Sources.Add(e.Source);
+      if (!LogNames.Contains(e.LogName))
+        LogNames.Add(e.LogName);
     }
     EventsView.Refresh();
     UpdateGrouping();
@@ -313,6 +362,8 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     // If ShowOnlyChecked is enabled and there are checked rows, only show checked
     if (ShowOnlyChecked && HasCheckedRows && !checkedScanEventIds.Contains(e.ScanEventId)) return false;
     if (SelectedLogLevels.Count > 0 && !SelectedLogLevels.Contains(e.Level)) return false;
+    if (SelectedSources.Count > 0 && !SelectedSources.Contains(e.Source)) return false;
+    if (SelectedLogNames.Count > 0 && !SelectedLogNames.Contains(e.LogName)) return false;
     if (!string.IsNullOrWhiteSpace(SearchText) && !(e.Message?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false)) return false;
     return true;
   }

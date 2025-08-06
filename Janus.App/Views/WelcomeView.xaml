@@ -25,7 +25,8 @@
                              Height="200"
                              IsTabStop="True"
                              KeyboardNavigation.TabIndex="2"
-                             KeyDown="RecentSnapshotsListBox_KeyDown"/>
+                             KeyDown="RecentSnapshotsListBox_KeyDown"
+                             MouseDoubleClick="RecentSnapshotsListBox_MouseDoubleClick"/>
         </StackPanel>
         <Separator Width="16" Visibility="Hidden"/>
         <StackPanel>

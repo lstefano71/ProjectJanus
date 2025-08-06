@@ -26,10 +26,7 @@ public partial class ResultsView : UserControl
       if (ResultsDataGrid.Items.Count > 0 && ResultsDataGrid.SelectedIndex == -1)
         ResultsDataGrid.SelectedIndex = 0;
     }
-    if (SearchBox != null) {
-      SearchBox.GotKeyboardFocus += (s, args) => SearchBox.SelectAll();
-      SearchBox.KeyDown += SearchBox_KeyDown;
-    }
+    // Remove SearchBox logic: now handled by TextBoxWithPlaceholder
   }
 
   private void ResultsDataGrid_KeyDown(object sender, KeyEventArgs e)
@@ -51,16 +48,6 @@ public partial class ResultsView : UserControl
         vm.CopyMessageCommand.Execute(null);
         e.Handled = true;
       }
-    }
-  }
-
-  private void SearchBox_KeyDown(object sender, KeyEventArgs e)
-  {
-    if (e.Key == Key.Enter) {
-      // Triggers filtering by updating SearchText (already bound)
-      // Optionally, move focus to ResultsDataGrid
-      ResultsDataGrid.Focus();
-      e.Handled = true;
     }
   }
 }

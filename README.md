@@ -19,6 +19,7 @@ Project Janus is a diagnostic utility that scans all Windows event logs within a
 - **Configurable Time Window**: Analyze events before and after a central timestamp.
 - **Portable Snapshots**: Save and load event log snapshots as portable files for offline review.
 - **Modern UI**: Responsive WPF interface with clear separation of concerns (MVVM, no code-behind logic).
+- **Advanced Results Filtering**: Right-side filter panel with reusable, searchable, multi-select controls for log level, source, and log, supporting cross-filtering, dynamic counts, and accessibility.
 - **Progress & Cancellation**: Real-time scan progress and cancellation support.
 - **Status Bar**: Displays scan progress and event count.
 
@@ -86,6 +87,15 @@ ProjectJanus.sln
 
 > [!NOTE]
 > This README describes the current implementation. For planned features and design details, see the documentation above.
+
+---
+
+## Recent Additions
+
+- ResultsView filter section redesigned as a right-side panel with advanced multi-select controls for log level, source, and log.
+- Multi-select controls support search, virtualization, cross-filtering, dynamic counts, keyboard/mouse accessibility, and theming.
+- Placeholder for future time filter UI included in the filter panel.
+
 
 ---
 

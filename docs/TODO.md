@@ -43,8 +43,8 @@
 -   [ ] **4.5:** Create a `ResultsViewModel.cs` to manage the result data and presentation logic.
 -   [ ] **4.6:** Bind the `DataGrid`'s `ItemsSource` to an `ObservableCollection` in the ViewModel.
 -   [ ] **4.7:** Implement logic to update the detail view when the `DataGrid`'s selected item changes.
--   [ ] **4.8:** Add UI controls for filtering: checkboxes for Level and a search `TextBox`.
--   [ ] **4.9:** Implement filtering logic in the ViewModel, preferably using `ICollectionView` for efficiency.
+-   [x] **4.8:** Add right-side filter panel with advanced multi-select controls for log level, source, and log, supporting search, cross-filtering, and accessibility.
+-   [x] **4.9:** Implement filtering logic in the ViewModel using cross-filtering and dynamic counts for all filter controls.
 -   [ ] **4.10:** Add a right-click context menu to the `DataGrid` with a "Copy Message" command.
 
 ### Phase 5: Snapshot Persistence & Offline Mode

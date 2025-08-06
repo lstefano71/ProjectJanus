@@ -1,5 +1,6 @@
 ﻿<UserControl x:Class="Janus.App.ResultsView"
     xmlns:local="clr-namespace:Janus.App"
+    xmlns:controls="clr-namespace:Janus.App.Controls"
     xmlns:helpers="clr-namespace:Janus.App.Helpers"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -29,6 +30,7 @@
       <ColumnDefinition Width="32"/>
       <ColumnDefinition Width="{Binding IsExpanded, ElementName=MetadataExpander, Converter={StaticResource BoolToGridLength}}"/>
       <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="280"/>
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
@@ -65,75 +67,58 @@
       <TextBlock Text="{Binding Metadata.MinutesAfter}" Margin="0,0,0,8"/>
     </StackPanel>
     <!-- Filters and Status -->
-    <Grid Grid.Column="2" Grid.Row="0" Margin="0,0,0,10">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto" MinWidth="200"/>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="180"/>
-        <ColumnDefinition Width="180"/>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="120"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
-        <RowDefinition Height="Auto"/>
-        <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
-      <!-- Results label and event count -->
-      <TextBlock Grid.Column="0" Grid.Row="0" Text="Results:" FontWeight="Bold" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0"/>
-      <TextBlock Grid.Column="0" Grid.Row="1"
-                 FontWeight="Bold"
-                 VerticalAlignment="Center"
-                 Margin="0,0,10,0"
-                 Text="{Binding EventCountStatus}"/>
-      <!-- Log Level -->
-      <TextBlock Grid.Column="1" Grid.Row="0" Text="Log Level:" VerticalAlignment="Center" Margin="0,0,10,0"/>
-      <ComboBox Grid.Column="2" Grid.Row="0" Width="180" Height="28" IsEditable="False" HorizontalAlignment="Left" VerticalAlignment="Center"
+    <!-- Right-side filter panel -->
+    <Border Grid.Column="3" Grid.Row="0" Grid.RowSpan="4" Margin="4,0,0,0" Background="{DynamicResource ControlBackgroundBrush}" BorderBrush="{DynamicResource ControlBorderBrush}" BorderThickness="1" CornerRadius="6">
+      <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Height="Auto" MinHeight="200">
+        <StackPanel Margin="4" VerticalAlignment="Stretch">
+          <!-- Log Level MultiSelect -->
+          <controls:AdvancedMultiSelect
+            Header="Log Level"
             ItemsSource="{Binding LogLevels}"
-            IsDropDownOpen="{Binding IsLogLevelPopupOpen, Mode=TwoWay}"
-            StaysOpenOnEdit="True"
-            Padding="0">
-        <ComboBox.Template>
-          <ControlTemplate TargetType="ComboBox">
-            <Grid>
-              <ToggleButton IsChecked="{Binding IsLogLevelPopupOpen, Mode=TwoWay}" Focusable="False" Background="White" BorderBrush="#888" BorderThickness="1" Height="28" VerticalAlignment="Center">
-                <ContentPresenter Content="{Binding SelectedLogLevelsDisplay}" VerticalAlignment="Center" Margin="6,0,0,0"/>
-              </ToggleButton>
-              <Popup Placement="Bottom" IsOpen="{Binding IsLogLevelPopupOpen, Mode=TwoWay}" StaysOpen="False">
-                <Border Background="White" BorderBrush="#888" BorderThickness="1" Padding="4">
-                  <ItemsControl ItemsSource="{Binding LogLevels}">
-                    <ItemsControl.ItemTemplate>
-                      <DataTemplate>
-                        <CheckBox Content="{Binding}"
-                              IsChecked="{Binding DataContext.SelectedLogLevels, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource LogLevelSelectedConverter}, ConverterParameter={x:Null}}"
-                              Command="{Binding DataContext.ToggleLogLevelCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                              CommandParameter="{Binding}"/>
-                      </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                  </ItemsControl>
-                </Border>
-              </Popup>
-            </Grid>
-          </ControlTemplate>
-        </ComboBox.Template>
-      </ComboBox>
-      <!-- Search -->
-      <TextBlock Grid.Column="1" Grid.Row="1" Text="_Search:" VerticalAlignment="Center" Margin="0,0,10,0"/>
-      <TextBox x:Name="SearchBox" Grid.Column="2" Grid.Row="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="180" VerticalAlignment="Center"/>
-      <!-- Group by Log -->
-      <CheckBox Grid.Column="3" Grid.Row="1" Content="Group by Log" IsChecked="{Binding IsGroupingEnabled}" Margin="0,0,0,0" VerticalAlignment="Center"
-                IsEnabled="{Binding IsGroupByLevelEnabled, Converter={StaticResource InverseBooleanConverter}}"/>
-      <!-- Group by Level -->
-      <CheckBox Grid.Column="3" Grid.Row="0" Content="Group by Level" IsChecked="{Binding IsGroupByLevelEnabled}" Margin="0,4,0,0" VerticalAlignment="Center"
-                IsEnabled="{Binding IsGroupingEnabled, Converter={StaticResource InverseBooleanConverter}}"/>
-      <!-- Show Only Checked Toggle -->
-      <CheckBox Grid.Column="4" Grid.Row="0" Margin="10,0,0,0"
-                Content="Show Only Checked"
-                IsChecked="{Binding ShowOnlyChecked, Mode=TwoWay}"
-                IsEnabled="{Binding HasCheckedRows}"
-                VerticalAlignment="Center"
-                ToolTip="Show only checked rows (if any are checked)"/>
-    </Grid>
+            SelectedItems="{Binding SelectedLogLevels, Mode=TwoWay}"
+            ItemCountProvider="{Binding LogLevelCountProvider}"
+            PlaceholderText="Search log levels..."
+            Margin="0,0,0,12"/>
+          <!-- Source MultiSelect -->
+          <controls:AdvancedMultiSelect
+            Header="Source"
+            ItemsSource="{Binding Sources}"
+            SelectedItems="{Binding SelectedSources, Mode=TwoWay}"
+            ItemCountProvider="{Binding SourceCountProvider}"
+            PlaceholderText="Search sources..."
+            Margin="0,0,0,12"/>
+          <!-- Log Name MultiSelect -->
+          <controls:AdvancedMultiSelect
+            Header="Log"
+            ItemsSource="{Binding LogNames}"
+            SelectedItems="{Binding SelectedLogNames, Mode=TwoWay}"
+            ItemCountProvider="{Binding LogNameCountProvider}"
+            PlaceholderText="Search logs..."
+            Margin="0,0,0,12"/>
+          <!-- Grouping -->
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <CheckBox Content="Group by Log" IsChecked="{Binding IsGroupingEnabled}" Margin="0,0,8,0"
+                      IsEnabled="{Binding IsGroupByLevelEnabled, Converter={StaticResource InverseBooleanConverter}}"/>
+            <CheckBox Content="Group by Level" IsChecked="{Binding IsGroupByLevelEnabled}"
+                      IsEnabled="{Binding IsGroupingEnabled, Converter={StaticResource InverseBooleanConverter}}"/>
+          </StackPanel>
+          <!-- Message Search -->
+          <controls:TextBoxWithPlaceholder
+              Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+              Placeholder="Filter event messages..."
+              Width="Auto" Margin="0,0,0,8" />
+          <!-- Show Only Checked -->
+          <CheckBox Content="Show Only Checked"
+                    IsChecked="{Binding ShowOnlyChecked, Mode=TwoWay}"
+                    IsEnabled="{Binding HasCheckedRows}"
+                    ToolTip="Show only checked rows (if any are checked)"/>
+          <!-- Placeholder for future time filter UI -->
+          <Border Height="40" Margin="0,12,0,0" Background="#EEE" CornerRadius="4" VerticalAlignment="Top">
+            <TextBlock Text="(Time filter coming soon)" Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+          </Border>
+        </StackPanel>
+      </ScrollViewer>
+    </Border>
     <!-- Progress/Status -->
     <TextBlock Grid.Column="2" Grid.Row="1" Text="{Binding ScanStatus}" FontWeight="Bold" Foreground="DarkBlue" Margin="0,0,0,10"/>
     <!-- DataGrid and Details Split Panels -->
