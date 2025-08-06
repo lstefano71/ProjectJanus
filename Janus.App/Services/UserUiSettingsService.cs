@@ -53,5 +53,16 @@ namespace Janus.App.Services
         fileLock.Release();
       }
     }
+
+    // Adds a snapshot to the MRU list, deduplicates, culls to 10, and saves settings
+    public async Task AddRecentSnapshotAsync(string filePath)
+    {
+      var settings = await LoadAsync();
+      settings.RecentSnapshots.Remove(filePath);
+      settings.RecentSnapshots.Insert(0, filePath);
+      while (settings.RecentSnapshots.Count > 10)
+        settings.RecentSnapshots.RemoveAt(settings.RecentSnapshots.Count - 1);
+      await SaveAsync(settings);
+    }
   }
 }

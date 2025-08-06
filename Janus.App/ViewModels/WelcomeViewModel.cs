@@ -103,12 +103,7 @@ public class WelcomeViewModel : INotifyPropertyChanged
 
     private async void AddRecentSnapshot(string filePath)
     {
-        var settings = await UserUiSettingsService.Instance.LoadAsync();
-        settings.RecentSnapshots.Remove(filePath);
-        settings.RecentSnapshots.Insert(0, filePath);
-        while (settings.RecentSnapshots.Count > 10)
-            settings.RecentSnapshots.RemoveAt(settings.RecentSnapshots.Count - 1);
-        await UserUiSettingsService.Instance.SaveAsync(settings);
+        await UserUiSettingsService.Instance.AddRecentSnapshotAsync(filePath);
         await LoadRecentSnapshotsAsync();
     }
 

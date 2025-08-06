@@ -162,7 +162,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     EventsView = CollectionViewSource.GetDefaultView(Events);
     EventsView.Filter = o => FilterPredicate(o as EventLogEntryDisplay);
     CopyMessageCommand = new RelayCommand(_ => CopyMessage(), _ => SelectedEvent is not null);
-    SaveSnapshotCommand = new RelayCommand(_ => SaveSnapshot());
+    SaveSnapshotCommand = new AsyncRelayCommand(SaveSnapshotAsync);
     ToggleLogLevelCommand = new RelayCommand(ToggleLogLevel);
     BackCommand = new RelayCommand(_ => GoBack(), _ => setCurrentView != null);
     debounceTimer = new System.Timers.Timer(500) { AutoReset = false };
@@ -219,7 +219,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     OnPropertyChanged(nameof(MetadataSnapshotCreatedLocal));
   }
 
-  private void SaveSnapshot()
+  private async Task SaveSnapshotAsync()
   {
     var dialog = new SaveSnapshotDialog();
     if (dialog.ShowDialog() == true) {
@@ -240,8 +240,11 @@ public partial class ResultsViewModel : INotifyPropertyChanged
           Entries = Metadata.Entries
         };
         var service = new SnapshotService();
-        service.SaveSnapshotAsync(saveFileDialog.FileName, updatedSession).Wait();
-        MessageBox.Show("Snapshot saved successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+        await service.SaveSnapshotAsync(saveFileDialog.FileName, updatedSession);
+        await UserUiSettingsService.Instance.AddRecentSnapshotAsync(saveFileDialog.FileName);
+        MessageBox.Show($"Snapshot saved successfully at: {saveFileDialog.FileName}.", 
+          "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
         SetMetadata(updatedSession);
       }
     }
