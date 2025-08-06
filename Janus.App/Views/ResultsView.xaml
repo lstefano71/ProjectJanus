@@ -137,7 +137,7 @@
         <RowDefinition Height="6"/>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <DataGrid Grid.Row="0"
+      <DataGrid x:Name="ResultsDataGrid" Grid.Row="0"
                 ItemsSource="{Binding EventsView}"
                 SelectedItem="{Binding SelectedEvent, Mode=TwoWay}"
                 AutoGenerateColumns="False"
