@@ -298,6 +298,11 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     this.setCurrentView = setCurrentView;
     this.previousView = previousView;
 
+    // Subscribe to collection changes for filter collections
+    SelectedLogLevels.CollectionChanged += (_, __) => RebuildView();
+    SelectedSources.CollectionChanged += (_, __) => RebuildView();
+    SelectedLogNames.CollectionChanged += (_, __) => RebuildView();
+
     RebuildView();
 
     CopyMessageCommand = new RelayCommand(_ => CopyMessage(), _ => SelectedEvent is not null);

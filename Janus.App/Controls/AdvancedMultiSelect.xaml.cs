@@ -112,7 +112,7 @@ public partial class AdvancedMultiSelect : UserControl, INotifyPropertyChanged
             items = items.Where(i => SelectedItems.Contains(i));
         foreach (var item in items)
         {
-            FilteredItems.Add(new ItemViewModel
+            FilteredItems.Add(new ItemViewModel(this)
             {
                 Value = item,
                 DisplayText = item?.ToString() ?? "",
@@ -149,10 +149,34 @@ public partial class AdvancedMultiSelect : UserControl, INotifyPropertyChanged
 
     public class ItemViewModel : INotifyPropertyChanged
     {
+        private readonly AdvancedMultiSelect parent;
+        private bool isSelected;
+        public ItemViewModel(AdvancedMultiSelect parent)
+        {
+            this.parent = parent;
+        }
         public object Value { get; set; }
         public string DisplayText { get; set; }
-        public bool IsSelected { get; set; }
         public int Count { get; set; }
+        public bool IsSelected
+        {
+            get => isSelected;
+            set
+            {
+                if (isSelected != value)
+                {
+                    isSelected = value;
+                    if (parent.SelectedItems != null && Value != null)
+                    {
+                        if (isSelected && !parent.SelectedItems.Contains(Value))
+                            parent.SelectedItems.Add(Value);
+                        else if (!isSelected && parent.SelectedItems.Contains(Value))
+                            parent.SelectedItems.Remove(Value);
+                    }
+                    OnPropertyChanged(nameof(IsSelected));
+                }
+            }
+        }
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
