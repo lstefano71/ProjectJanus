@@ -28,7 +28,8 @@ public class EventLogEntryDisplay
   public string Message => entry.Message;
   public string MachineName => entry.MachineName;
   public Guid ScanSessionId => entry.ScanSessionId;
-  public string TimeCreatedLocal => entry.TimeCreated.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
+  // Display ISO 8601 format with microseconds (6 digits)
+  public string TimeCreatedIso => entry.TimeCreated.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.ffffff'Z'");
 }
 
 public partial class ResultsViewModel : INotifyPropertyChanged

@@ -163,11 +163,11 @@
           </GroupStyle>
         </DataGrid.GroupStyle>
         <DataGrid.Columns>
-          <DataGridTextColumn Header="Time" Binding="{Binding TimeCreated}" Width="150" IsReadOnly="True"/>
-          <DataGridTextColumn Header="Log" Binding="{Binding LogName}" Width="120" IsReadOnly="True"/>
-          <DataGridTextColumn Header="Level" Binding="{Binding Level}" Width="80" IsReadOnly="True"/>
-          <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="120" IsReadOnly="True"/>
-          <DataGridTextColumn Header="EventId" Binding="{Binding EventId}" Width="80" IsReadOnly="True"/>
+          <DataGridTextColumn Header="Time" Binding="{Binding TimeCreatedIso}" Width="Auto" IsReadOnly="True"/>
+          <DataGridTextColumn Header="Log" Binding="{Binding LogName}" Width="Auto" IsReadOnly="True"/>
+          <DataGridTextColumn Header="Level" Binding="{Binding Level}" Width="Auto" IsReadOnly="True"/>
+          <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="Auto" IsReadOnly="True"/>
+          <DataGridTextColumn Header="EventId" Binding="{Binding EventId}" Width="Auto" IsReadOnly="True"/>
           <DataGridTextColumn Header="Message" Width="*" IsReadOnly="True">
             <DataGridTextColumn.Binding>
               <Binding Path="Message" Mode="OneWay">
