@@ -234,6 +234,22 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   // Add the ToggleCheckedCommand property
   public ICommand ToggleCheckedCommand { get; }
 
+  // Add a property to control filtering for checked rows
+  private bool showOnlyChecked;
+  public bool ShowOnlyChecked {
+    get => showOnlyChecked;
+    set {
+      if (showOnlyChecked != value) {
+        showOnlyChecked = value;
+        OnPropertyChanged();
+        RebuildView();
+      }
+    }
+  }
+
+  // Helper property: true if there is at least one checked row
+  public bool HasCheckedRows => checkedScanEventIds.Count > 0;
+
   public ResultsViewModel(Action<object>? setCurrentView = null, PreviousView previousView = PreviousView.Welcome)
   {
     this.setCurrentView = setCurrentView;
@@ -262,8 +278,9 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     if (param is EventLogEntryDisplay entry) {
       if (!checkedScanEventIds.Add(entry.ScanEventId))
         checkedScanEventIds.Remove(entry.ScanEventId);
-      // Notify UI to update the checkbox
       OnPropertyChanged(nameof(CheckedScanEventIds));
+      OnPropertyChanged(nameof(HasCheckedRows));
+      if (ShowOnlyChecked) RebuildView();
     }
   }
 
@@ -293,6 +310,8 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   private bool FilterPredicate(EventLogEntryDisplay? e)
   {
     if (e == null) return false;
+    // If ShowOnlyChecked is enabled and there are checked rows, only show checked
+    if (ShowOnlyChecked && HasCheckedRows && !checkedScanEventIds.Contains(e.ScanEventId)) return false;
     if (SelectedLogLevels.Count > 0 && !SelectedLogLevels.Contains(e.Level)) return false;
     if (!string.IsNullOrWhiteSpace(SearchText) && !(e.Message?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false)) return false;
     return true;

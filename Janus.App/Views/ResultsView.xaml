@@ -127,6 +127,13 @@
       <!-- Group by Level -->
       <CheckBox Grid.Column="3" Grid.Row="0" Content="Group by Level" IsChecked="{Binding IsGroupByLevelEnabled}" Margin="0,4,0,0" VerticalAlignment="Center"
                 IsEnabled="{Binding IsGroupingEnabled, Converter={StaticResource InverseBooleanConverter}}"/>
+      <!-- Show Only Checked Toggle -->
+      <CheckBox Grid.Column="4" Grid.Row="0" Margin="10,0,0,0"
+                Content="Show Only Checked"
+                IsChecked="{Binding ShowOnlyChecked, Mode=TwoWay}"
+                IsEnabled="{Binding HasCheckedRows}"
+                VerticalAlignment="Center"
+                ToolTip="Show only checked rows (if any are checked)"/>
     </Grid>
     <!-- Progress/Status -->
     <TextBlock Grid.Column="2" Grid.Row="1" Text="{Binding ScanStatus}" FontWeight="Bold" Foreground="DarkBlue" Margin="0,0,0,10"/>
