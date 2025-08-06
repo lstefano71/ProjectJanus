@@ -16,7 +16,6 @@ namespace Janus.App;
 public class EventLogEntryDisplay : INotifyPropertyChanged
 {
   private readonly EventLogEntry entry;
-  private bool isChecked;
 
   public EventLogEntryDisplay(EventLogEntry entry)
   {
@@ -35,19 +34,6 @@ public class EventLogEntryDisplay : INotifyPropertyChanged
   public Guid ScanSessionId => entry.ScanSessionId;
   // Display ISO 8601 format with microseconds (6 digits)
   public string TimeCreatedIso => entry.TimeCreated.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.ffffff'Z'");
-
-  public bool IsChecked
-  {
-    get => isChecked;
-    set
-    {
-      if (isChecked != value)
-      {
-        isChecked = value;
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsChecked)));
-      }
-    }
-  }
 
   public event PropertyChangedEventHandler? PropertyChanged;
 }
@@ -241,6 +227,13 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     }
   }
 
+  // Add a HashSet to track checked ScanEventIds
+  private readonly HashSet<int> checkedScanEventIds = [];
+  public IReadOnlyCollection<int> CheckedScanEventIds => checkedScanEventIds;
+
+  // Add the ToggleCheckedCommand property
+  public ICommand ToggleCheckedCommand { get; }
+
   public ResultsViewModel(Action<object>? setCurrentView = null, PreviousView previousView = PreviousView.Welcome)
   {
     this.setCurrentView = setCurrentView;
@@ -252,6 +245,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     SaveSnapshotCommand = new AsyncRelayCommand(SaveSnapshotAsync, () => CanSaveSnapshot);
     ToggleLogLevelCommand = new RelayCommand(ToggleLogLevel);
     BackCommand = new RelayCommand(_ => GoBack(), _ => setCurrentView != null);
+    ToggleCheckedCommand = new RelayCommand(ToggleChecked);
     debounceTimer = new System.Timers.Timer(500) { AutoReset = false };
     debounceTimer.Elapsed += async (_, __) => {
       if (pendingSave) {
@@ -260,6 +254,17 @@ public partial class ResultsViewModel : INotifyPropertyChanged
       }
     };
     _ = LoadUiSettingsAsync();
+  }
+
+  // Toggle checked state for a row (parameter is EventLogEntryDisplay)
+  private void ToggleChecked(object? param)
+  {
+    if (param is EventLogEntryDisplay entry) {
+      if (!checkedScanEventIds.Add(entry.ScanEventId))
+        checkedScanEventIds.Remove(entry.ScanEventId);
+      // Notify UI to update the checkbox
+      OnPropertyChanged(nameof(CheckedScanEventIds));
+    }
   }
 
   private void GoBack()

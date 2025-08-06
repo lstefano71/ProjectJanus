@@ -1,12 +1,13 @@
 ﻿<UserControl x:Class="Janus.App.ResultsView"
     xmlns:local="clr-namespace:Janus.App"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
-             mc:Ignorable="d"
-             d:DesignHeight="400" d:DesignWidth="900" Loaded="UserControl_Loaded">
+    xmlns:helpers="clr-namespace:Janus.App.Helpers"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
+    mc:Ignorable="d"
+    d:DesignHeight="400" d:DesignWidth="900" Loaded="UserControl_Loaded">
   <UserControl.Resources>
     <BooleanToVisibilityConverter x:Key="BoolToVis" />
     <local:StringNotEmptyToVisibleConverter x:Key="StringNotEmptyToVisible" />
@@ -14,6 +15,7 @@
     <local:LogLevelSelectedConverter x:Key="LogLevelSelectedConverter" />
     <local:BooleanToGridLengthConverter x:Key="BoolToGridLength" ExpandedWidth="220" CollapsedWidth="0" />
     <local:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+    <helpers:ScanIdCheckedMultiConverter x:Key="ScanIdCheckedMultiConverter" />
     <GroupStyle x:Key="MyEventGroupStyle">
       <GroupStyle.HeaderTemplate>
         <DataTemplate>
@@ -180,7 +182,18 @@
           <DataGridTemplateColumn Header="✔" Width="32">
             <DataGridTemplateColumn.CellTemplate>
               <DataTemplate>
-                <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <CheckBox
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Command="{Binding DataContext.ToggleCheckedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                  CommandParameter="{Binding}">
+                  <CheckBox.IsChecked>
+                    <MultiBinding Converter="{StaticResource ScanIdCheckedMultiConverter}" Mode="OneWay">
+                      <Binding Path="DataContext.CheckedScanEventIds" RelativeSource="{RelativeSource AncestorType=UserControl}" Mode="OneWay" />
+                      <Binding Path="ScanEventId" Mode="OneWay" />
+                    </MultiBinding>
+                  </CheckBox.IsChecked>
+                </CheckBox>
               </DataTemplate>
             </DataGridTemplateColumn.CellTemplate>
           </DataGridTemplateColumn>
