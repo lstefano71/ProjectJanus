@@ -13,9 +13,15 @@ using System.Windows.Input;
 
 namespace Janus.App;
 
-public class EventLogEntryDisplay(EventLogEntry entry)
+public class EventLogEntryDisplay : INotifyPropertyChanged
 {
-  private readonly EventLogEntry entry = entry;
+  private readonly EventLogEntry entry;
+  private bool isChecked;
+
+  public EventLogEntryDisplay(EventLogEntry entry)
+  {
+    this.entry = entry;
+  }
 
   public int ScanEventId => entry.ScanEventId;
   public long Id => entry.Id;
@@ -29,6 +35,21 @@ public class EventLogEntryDisplay(EventLogEntry entry)
   public Guid ScanSessionId => entry.ScanSessionId;
   // Display ISO 8601 format with microseconds (6 digits)
   public string TimeCreatedIso => entry.TimeCreated.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.ffffff'Z'");
+
+  public bool IsChecked
+  {
+    get => isChecked;
+    set
+    {
+      if (isChecked != value)
+      {
+        isChecked = value;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsChecked)));
+      }
+    }
+  }
+
+  public event PropertyChangedEventHandler? PropertyChanged;
 }
 
 public partial class ResultsViewModel : INotifyPropertyChanged
@@ -189,6 +210,10 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     // 3. Set the new view to our property. This triggers the UI to update.
     // The DataGrid will see it's a NEW object and completely reset itself.
     EventsView = cvs.View;
+
+    // 3.5. Always sort by TimeCreated descending (most recent first)
+    EventsView.SortDescriptions.Clear();
+    EventsView.SortDescriptions.Add(new SortDescription(nameof(EventLogEntryDisplay.TimeCreated), ListSortDirection.Ascending));
 
     // 4. Re-apply grouping and update counts on the new view.
     UpdateGrouping();
