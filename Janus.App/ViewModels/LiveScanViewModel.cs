@@ -18,6 +18,7 @@ public class LiveScanViewModel : INotifyPropertyChanged
   private string scanStatus = "Ready";
   private CancellationTokenSource? cts;
 
+  private bool isScanInProgress;
   public DateTime Timestamp {
     get => timestamp;
     set { timestamp = value; OnPropertyChanged(); }
@@ -50,6 +51,16 @@ public class LiveScanViewModel : INotifyPropertyChanged
     get => scanStatus;
     set { scanStatus = value; OnPropertyChanged(); }
   }
+  public bool IsScanInProgress {
+    get => isScanInProgress;
+    set {
+      if (isScanInProgress != value) {
+        isScanInProgress = value;
+        OnPropertyChanged();
+        (BackCommand as RelayCommand)?.RaiseCanExecuteChanged();
+      }
+    }
+  }
 
   public ICommand ScanCommand { get; }
   public ICommand CancelCommand { get; }
@@ -59,10 +70,10 @@ public class LiveScanViewModel : INotifyPropertyChanged
   public LiveScanViewModel(Action<object>? setCurrentView = null)
   {
     this.setCurrentView = setCurrentView;
-    ScanCommand = new RelayCommand(async _ => await ScanAsync(), _ => cts is null);
+    ScanCommand = new AsyncRelayCommand(ScanAsync, () => cts is null);
     CancelCommand = new RelayCommand(_ => CancelScan(), _ => cts is not null);
     SetNowCommand = new RelayCommand(_ => SetNow());
-    BackCommand = new RelayCommand(_ => GoBack(), _ => setCurrentView != null);
+    BackCommand = new RelayCommand(_ => GoBack(), _ => setCurrentView != null && !IsScanInProgress);
     _ = LoadUiSettingsAsync();
   }
 
@@ -95,6 +106,7 @@ public class LiveScanViewModel : INotifyPropertyChanged
   private async Task ScanAsync()
   {
     cts = new CancellationTokenSource();
+    IsScanInProgress = true;
     ScanStatus = "Scanning...";
     var service = new EventLogScannerService();
     var scanTimestamp = DateTime.SpecifyKind(Timestamp.Date.Add(TimeSpan.Parse(TimeOfDay)), DateTimeKind.Local).ToUniversalTime();
@@ -129,6 +141,7 @@ public class LiveScanViewModel : INotifyPropertyChanged
       ScanStatus = details;
     } finally {
       cts = null;
+      IsScanInProgress = false;
     }
   }
 

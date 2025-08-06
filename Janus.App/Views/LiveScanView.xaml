@@ -39,6 +39,6 @@
         </StackPanel>
         <TextBlock Grid.Row="4" Text="{Binding ScanStatus}" FontWeight="Bold" Foreground="DarkBlue" Margin="0,0,0,10"/>
         <!-- Back button in lower left -->
-        <Button Grid.Row="6" Content="Back" Command="{Binding BackCommand}" Width="80" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,10,0,0"/>
+        <Button Grid.Row="6" Content="Back" Command="{Binding BackCommand}" Width="80" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,10,0,0" IsEnabled="{Binding IsScanInProgress, Converter={StaticResource InverseBooleanConverter}}"/>
     </Grid>
 </UserControl>

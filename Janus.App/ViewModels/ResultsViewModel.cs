@@ -76,6 +76,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
       selectedLogLevels = value;
       OnPropertyChanged();
       OnPropertyChanged(nameof(SelectedLogLevelsDisplay));
+      OnPropertyChanged(nameof(EventCountStatus));
       EventsView.Refresh();
     }
   }
@@ -95,6 +96,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
         SelectedLogLevels.Add(logLevel);
       OnPropertyChanged(nameof(SelectedLogLevelsDisplay));
       EventsView.Refresh();
+      OnPropertyChanged(nameof(EventCountStatus));
     }
   }
 
@@ -141,10 +143,13 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   private string searchText = string.Empty;
   public string SearchText {
     get => searchText;
-    set { searchText = value; EventsView.Refresh(); OnPropertyChanged(); }
+    set { searchText = value; EventsView.Refresh(); OnPropertyChanged(); OnPropertyChanged(nameof(EventCountStatus)); }
   }
 
   public int EventCount => EventsView.Cast<object>().Count();
+  // Add property for total (unfiltered) count
+  public int TotalEventCount => Events.Count;
+  public string EventCountStatus => $"{EventCount} / {TotalEventCount} events";
   public ICommand CopyMessageCommand { get; }
   public ICommand SaveSnapshotCommand { get; }
   public ICommand BackCommand { get; }
@@ -155,6 +160,18 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   private readonly Action<object>? setCurrentView;
   private readonly PreviousView previousView;
 
+  private bool canSaveSnapshot = true;
+  public bool CanSaveSnapshot {
+    get => canSaveSnapshot;
+    set {
+      if (canSaveSnapshot != value) {
+        canSaveSnapshot = value;
+        OnPropertyChanged();
+        (SaveSnapshotCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
+      }
+    }
+  }
+
   public ResultsViewModel(Action<object>? setCurrentView = null, PreviousView previousView = PreviousView.Welcome)
   {
     this.setCurrentView = setCurrentView;
@@ -162,7 +179,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     EventsView = CollectionViewSource.GetDefaultView(Events);
     EventsView.Filter = o => FilterPredicate(o as EventLogEntryDisplay);
     CopyMessageCommand = new RelayCommand(_ => CopyMessage(), _ => SelectedEvent is not null);
-    SaveSnapshotCommand = new AsyncRelayCommand(SaveSnapshotAsync);
+    SaveSnapshotCommand = new AsyncRelayCommand(SaveSnapshotAsync, () => CanSaveSnapshot);
     ToggleLogLevelCommand = new RelayCommand(ToggleLogLevel);
     BackCommand = new RelayCommand(_ => GoBack(), _ => setCurrentView != null);
     debounceTimer = new System.Timers.Timer(500) { AutoReset = false };
@@ -195,6 +212,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     EventsView.Refresh();
     UpdateGrouping();
     ScanStatus = $"Loaded {Events.Count} events.";
+    OnPropertyChanged(nameof(EventCountStatus));
   }
 
   private bool FilterPredicate(EventLogEntryDisplay? e)
@@ -246,6 +264,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
           "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
         SetMetadata(updatedSession);
+        CanSaveSnapshot = false;
       }
     }
   }

@@ -44,8 +44,8 @@ public class WelcomeViewModel : INotifyPropertyChanged
     {
         this.setCurrentView = setCurrentView;
         NewScanCommand = new RelayCommand(_ => StartNewScan());
-        OpenSnapshotCommand = new RelayCommand(_ => OpenSnapshot());
-        OpenRecentSnapshotCommand = new RelayCommand(async o => await OpenRecentSnapshotAsync(o as RecentSnapshotInfo), o => o is RecentSnapshotInfo);
+        OpenSnapshotCommand = new AsyncRelayCommand(OpenSnapshotAsync);
+        OpenRecentSnapshotCommand = new AsyncRelayCommand(OpenRecentSnapshotAsync, () => SelectedRecentSnapshot != null);
         _ = LoadRecentSnapshotsAsync();
     }
 
@@ -54,7 +54,7 @@ public class WelcomeViewModel : INotifyPropertyChanged
         setCurrentView?.Invoke(new LiveScanViewModel(setCurrentView));
     }
 
-    private async void OpenSnapshot()
+    private async Task OpenSnapshotAsync()
     {
         var openFileDialog = new OpenFileDialog {
             Filter = "Janus Snapshot (*.janus)|*.janus",
@@ -63,6 +63,12 @@ public class WelcomeViewModel : INotifyPropertyChanged
         if (openFileDialog.ShowDialog() == true) {
             await OpenSnapshotFileAsync(openFileDialog.FileName);
         }
+    }
+
+    private async Task OpenRecentSnapshotAsync()
+    {
+        if (SelectedRecentSnapshot == null) return;
+        await OpenSnapshotFileAsync(SelectedRecentSnapshot.FilePath);
     }
 
     private async Task OpenSnapshotFileAsync(string filePath)
@@ -82,12 +88,6 @@ public class WelcomeViewModel : INotifyPropertyChanged
         } catch (Exception ex) {
             MessageBox.Show($"Failed to load snapshot: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
-    }
-
-    private async Task OpenRecentSnapshotAsync(RecentSnapshotInfo? info)
-    {
-        if (info == null) return;
-        await OpenSnapshotFileAsync(info.FilePath);
     }
 
     private async Task LoadRecentSnapshotsAsync()
