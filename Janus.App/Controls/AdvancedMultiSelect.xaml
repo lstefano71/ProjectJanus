@@ -65,8 +65,6 @@
                             <DataTemplate>
                                 <CheckBox
                                           IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                          Command="{Binding DataContext.ItemToggleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                          CommandParameter="{Binding Value}"
                                           Background="{DynamicResource ControlBackgroundBrush}"
                                           Foreground="{DynamicResource ControlForegroundBrush}"
                                           AutomationProperties.Name="{Binding DisplayText}"
@@ -81,8 +79,8 @@
                                     <StackPanel Orientation="Horizontal">
                                         <Border Background="#FFE0E0E0" CornerRadius="3" Margin="0,0,6,0" Padding="4,0" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding Count}" FontSize="11"
-                                                       MinWidth="26" 
-                                                       VerticalAlignment="Center" Foreground="Black"/>
+                                                   MinWidth="26" 
+                                                   VerticalAlignment="Center" Foreground="Black"/>
                                         </Border>
                                         <TextBlock Text="{Binding DisplayText}" VerticalAlignment="Center" />
                                     </StackPanel>
