@@ -15,8 +15,7 @@ public partial class ResultsView : UserControl
     InitializeComponent();
     // Attach key handler for DataGrid after InitializeComponent
     this.Loaded += (s, e) => {
-      var dataGrid = this.FindName("ResultsDataGrid") as DataGrid;
-      if (dataGrid != null) {
+      if (this.FindName("ResultsDataGrid") is DataGrid dataGrid) {
         dataGrid.PreviewKeyDown += DataGrid_PreviewKeyDown;
       }
     };

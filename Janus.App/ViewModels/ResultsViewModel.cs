@@ -336,9 +336,17 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     var dialog = new SaveSnapshotDialog();
     if (dialog.ShowDialog() == true) {
       var vm = (SaveSnapshotDialogViewModel)dialog.DataContext;
+      string? defaultFileName = null;
+      if (Metadata != null) {
+        // Use ISO 8601 format for the pivot timestamp (Metadata.Timestamp)
+        // Replace characters not allowed in file names (e.g., ':') with '-'
+        var iso = Metadata.Timestamp.ToUniversalTime().ToString("yyyy-MM-ddTHH-mm-ssZ");
+        defaultFileName = $"JanusSnapshot_{iso}.janus";
+      }
       var saveFileDialog = new SaveFileDialog {
         Filter = "Janus Snapshot (*.janus)|*.janus",
         DefaultExt = "janus",
+        FileName = defaultFileName
       };
       if (saveFileDialog.ShowDialog() == true && Metadata is not null) {
         var filePath = saveFileDialog.FileName;

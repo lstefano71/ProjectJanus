@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows</TargetFramework>
@@ -18,7 +18,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.115">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.0.50">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -26,6 +26,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Janus.Core\Janus.Core.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(_TargetAssemblyProjectName)' != ''">
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(_TargetAssemblyProjectName)' != ''">
+    <Compile Include="$(IntermediateOutputPath)$(_TargetAssemblyProjectName).Version.cs" />
   </ItemGroup>
 
 </Project>
