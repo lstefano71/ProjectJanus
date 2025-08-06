@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             d:DesignHeight="400" d:DesignWidth="900">
+             d:DesignHeight="400" d:DesignWidth="900" Loaded="UserControl_Loaded">
   <UserControl.Resources>
     <local:StringNotEmptyToVisibleConverter x:Key="StringNotEmptyToVisible" />
     <local:FirstLineConverter x:Key="FirstLineConverter" />
@@ -179,7 +179,7 @@
           </DataGridTextColumn>
         </DataGrid.Columns>
       </DataGrid>
-      <GridSplitter Grid.Row="1" Height="6" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="#DDD" ShowsPreview="True" />
+      <GridSplitter Grid.Row="1" Height="6" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="#DDD" ShowsPreview="True" AutomationProperties.Name="hSplitter" />
       <Grid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="1*" MinWidth="120" />
@@ -212,7 +212,7 @@
             <Run Text="{Binding SelectedEvent.MachineName, Mode=OneWay}"/>
           </TextBlock>
         </StackPanel>
-        <GridSplitter Grid.Column="1" Width="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#DDD" ShowsPreview="True" />
+        <GridSplitter Grid.Column="1" Width="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#DDD" ShowsPreview="True" AutomationProperties.Name="vSplitter" />
         <TextBox Grid.Column="2"
          Text="{Binding SelectedEvent.Message, Mode=OneWay}"
          IsReadOnly="True"

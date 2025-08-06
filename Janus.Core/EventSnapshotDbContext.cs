@@ -7,6 +7,6 @@ namespace Janus.Core;
 /// </summary>
 public class EventSnapshotDbContext(DbContextOptions<EventSnapshotDbContext> options) : DbContext(options)
 {
-    public DbSet<EventLogEntry> EventLogEntries => Set<EventLogEntry>();
-    public DbSet<ScanSession> ScanSessions => Set<ScanSession>();
+  public DbSet<EventLogEntry> EventLogEntries => Set<EventLogEntry>();
+  public DbSet<ScanSession> ScanSessions => Set<ScanSession>();
 }

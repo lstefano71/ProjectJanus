@@ -4,8 +4,8 @@ namespace Janus.App;
 
 public partial class LiveScanView : UserControl
 {
-    public LiveScanView()
-    {
-        InitializeComponent();
-    }
+  public LiveScanView()
+  {
+    InitializeComponent();
+  }
 }

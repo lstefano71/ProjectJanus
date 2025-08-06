@@ -4,9 +4,9 @@ namespace Janus.App;
 
 public partial class SaveSnapshotDialog : Window
 {
-    public SaveSnapshotDialog()
-    {
-        InitializeComponent();
-        DataContext = new SaveSnapshotDialogViewModel(this);
-    }
+  public SaveSnapshotDialog()
+  {
+    InitializeComponent();
+    DataContext = new SaveSnapshotDialogViewModel(this);
+  }
 }
