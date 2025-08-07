@@ -16,3 +16,8 @@ The final code is a hodgepodge of styles and technical solutions. A sort of patc
 Would I do it again? Yes, I would.
 Hopefully Janus will be of use to me and my colleagues. It's something I had wanted for a long time and am glad it I finally have it.
 
+## Comments
+- Github Copilot in VS Code seems to be stupider than the one in Visual Studio.
+- I have not yet found a way to make the AI write good unit tests. It is a constant struggle to get it to write any tests at all, let alone good ones.
+- Cline, RooCode have their pros and cons, their own quirks and limitations. Maybe it's a limitation of GPT-4.1?
+- Gemini Pro 2.5 tends to be the best model but unfortunately I don't have access to it without going through the web interface and not for work related intellectual property.
