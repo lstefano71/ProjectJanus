@@ -53,17 +53,20 @@
       <!-- Action Card Left-Aligned -->
       <Border Padding="24" Background="#fafbfc" BorderBrush="#e5e8eb" BorderThickness="1" Width="260" VerticalAlignment="Top">
         <StackPanel>
-          <Button x:Name="NewScanButton" Content="_New Live Scan" Command="{Binding NewScanCommand}" Width="200" Height="40" Margin="0,0,0,8" IsDefault="True"/>
+          <Button x:Name="NewScanButton" Content="🟢  New Live Scan" Command="{Binding NewScanCommand}" Width="200" Height="44" Margin="0,0,0,10" IsDefault="True"
+                  Background="#1e90ff" Foreground="White" FontWeight="Bold" BorderBrush="#1e90ff" BorderThickness="1" Cursor="Hand"/>
           <TextBlock Text="Scan your system for recent events. This is safe and does not change anything." FontSize="12" Foreground="#666" TextWrapping="Wrap" Margin="0,0,0,16"/>
-          <Button Content="_Open Snapshot..." Command="{Binding OpenSnapshotCommand}" Width="200" Height="40" Margin="0,0,0,8"/>
+          <Button Content="📂  Open Snapshot..." Command="{Binding OpenSnapshotCommand}" Width="200" Height="44" Margin="0,0,0,8"
+                  Background="#f7b731" Foreground="#222" FontWeight="Bold" BorderBrush="#f7b731" BorderThickness="1" Cursor="Hand"/>
           <TextBlock Text="Open a previously saved snapshot for offline analysis." FontSize="12" Foreground="#666" TextWrapping="Wrap"/>
         </StackPanel>
       </Border>
       <!-- Project Description / Quick Tutorial -->
       <StackPanel Margin="32,0,0,0" VerticalAlignment="Top">
         <TextBlock Text="Welcome to Project Janus" FontSize="22" FontWeight="Bold" Foreground="#223" Margin="0,0,0,8"/>
-        <TextBlock Text="Project Janus helps you analyze Windows system events around a critical timestamp. Scans are quick, safe, and non-committal—no changes are made to your system." FontSize="13" Foreground="#445" TextWrapping="Wrap" Margin="0,0,0,12"/>
-        <TextBlock Text="Get started by running a new scan or opening a snapshot. Snapshots are portable and can be shared for offline analysis." FontSize="13" Foreground="#445" TextWrapping="Wrap"/>
+        <TextBlock Text="🕵️‍♂️ Analyze Windows system events around a critical timestamp." FontSize="13" Foreground="#445" TextWrapping="Wrap" Margin="0,0,0,6"/>
+        <TextBlock Text="⚡ Scans are quick, safe, and non-committal—no changes are made to your system." FontSize="13" Foreground="#445" TextWrapping="Wrap" Margin="0,0,0,6"/>
+        <TextBlock Text="🚀 Get started: run a new scan or open a snapshot. Snapshots are portable and can be shared for offline analysis." FontSize="13" Foreground="#445" TextWrapping="Wrap"/>
       </StackPanel>
     </DockPanel>
 
