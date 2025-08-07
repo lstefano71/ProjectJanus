@@ -14,7 +14,7 @@
     <local:StringNotEmptyToVisibleConverter x:Key="StringNotEmptyToVisible" />
     <local:FirstLineConverter x:Key="FirstLineConverter" />
     <local:LogLevelSelectedConverter x:Key="LogLevelSelectedConverter" />
-    <local:BooleanToGridLengthConverter x:Key="BoolToGridLength" ExpandedWidth="220" CollapsedWidth="0" />
+    <local:BooleanToGridLengthConverter x:Key="BoolToGridLength" ExpandedWidth="260" CollapsedWidth="0" />
     <local:InverseBooleanConverter x:Key="InverseBooleanConverter" />
     <helpers:ScanIdCheckedMultiConverter x:Key="ScanIdCheckedMultiConverter" />
     <helpers:ScanStatusToBrushConverter x:Key="ScanStatusToBrushConverter" />
@@ -91,16 +91,22 @@
         </StackPanel>
       </GroupBox>
       <!-- ScannedSources List: fills remaining space, scrollable -->
-      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-        <ItemsControl ItemsSource="{Binding ScannedSources}">
-          <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate>
-              <VirtualizingStackPanel/>
-            </ItemsPanelTemplate>
-          </ItemsControl.ItemsPanel>
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <StackPanel Orientation="Horizontal" Margin="0,1,0,1">
+      <ListBox ItemsSource="{Binding ScannedSources}" Grid.Row="1"
+               VirtualizingPanel.IsVirtualizing="True"
+               VirtualizingPanel.VirtualizationMode="Recycling"
+               ScrollViewer.CanContentScroll="True"
+               BorderThickness="0"
+               SelectionMode="Single"
+               HorizontalContentAlignment="Stretch"
+               ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <Grid Margin="0,2,0,2">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center">
                 <ContentControl Margin="0,0,6,0" VerticalAlignment="Center">
                   <ContentControl.Style>
                     <Style TargetType="ContentControl">
@@ -145,15 +151,15 @@
                 </ContentControl>
                 <Border Background="#FFE0E0E0" CornerRadius="3" Margin="0,0,6,0" Padding="4,0" VerticalAlignment="Center">
                   <TextBlock Text="{Binding EventsRetrieved}" FontSize="10"
-                             MinWidth="22"
                              VerticalAlignment="Center" Foreground="Black"/>
                 </Border>
-                <TextBlock Text="{Binding SourceName}" VerticalAlignment="Center" FontSize="10"/>
               </StackPanel>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-      </ScrollViewer>
+              <TextBlock Grid.Column="1" Text="{Binding SourceName}" FontSize="10" TextWrapping="Wrap" VerticalAlignment="Center" />
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+      
       <!-- Notes at the bottom with a darker background -->
       <Border Grid.Row="2" Background="#FFE8E8E8" CornerRadius="4" Padding="6" Margin="0,8,0,0">
         <StackPanel>
