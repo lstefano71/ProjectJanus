@@ -26,68 +26,60 @@
 
               <!-- LAYER 1: The Light Source. -->
               <Canvas>
-                <!-- The glint element. Its Canvas.Left and Canvas.Top are animated. -->
-                <Rectangle x:Name="Glint" Width="50" Height="12" Fill="#C879FF">
+                <!-- The glint element. RenderTransformOrigin is key for centered rotation. -->
+                <Rectangle x:Name="Glint" Width="50" Height="12" Fill="#C879FF" RenderTransformOrigin="0.5,0.5">
+                  <Rectangle.RenderTransform>
+                    <RotateTransform Angle="0"/>
+                  </Rectangle.RenderTransform>
                   <Rectangle.Effect>
                     <BlurEffect Radius="12"/>
                   </Rectangle.Effect>
                 </Rectangle>
               </Canvas>
 
-              <!-- LAYER 2: The Button Chrome, which acts as a mask -->
-              <Border x:Name="buttonChrome"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="3"
-                            SnapsToDevicePixels="True">
-                <ContentPresenter x:Name="contentPresenter"
-                                          Focusable="False"
-                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          Margin="{TemplateBinding Padding}"
-                                          RecognizesAccessKey="True"
-                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+              <!-- LAYER 2: The Button Chrome (Mask) -->
+              <Border x:Name="buttonChrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="3" SnapsToDevicePixels="True">
+                <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
               </Border>
             </Grid>
 
             <ControlTemplate.Triggers>
-              <!-- This robust trigger starts and stops the animation -->
               <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Self}}" Value="True">
                 <DataTrigger.EnterActions>
                   <BeginStoryboard Name="GlowAnimation">
-                    <Storyboard RepeatBehavior="Forever" Duration="0:0:4" SpeedRatio="0.25" >
+                    <!-- Longer duration for a more deliberate and detailed animation -->
+                    <Storyboard RepeatBehavior="Forever" Duration="0:0:8" SpeedRatio="0.5">
 
-                      <!-- THE DEFINITIVE FIX: Keyframes now create "hold" periods to force a rectangular path. -->
-
-                      <!-- Animate the Horizontal (X) position -->
                       <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Glint" Storyboard.TargetProperty="(Canvas.Left)">
-                        <!-- Start on left edge, centered vertically -->
-                        <LinearDoubleKeyFrame KeyTime="0:0:0" Value="-2"/>
-                        <!-- Move across top edge -->
-                        <LinearDoubleKeyFrame KeyTime="0:0:1" Value="155"/>
-                        <!-- Hold on right edge -->
-                        <LinearDoubleKeyFrame KeyTime="0:0:2" Value="155"/>
-                        <!-- Move across bottom edge -->
-                        <LinearDoubleKeyFrame KeyTime="0:0:3" Value="-2"/>
-                        <!-- Hold on left edge to complete loop -->
-                        <LinearDoubleKeyFrame KeyTime="0:0:4" Value="-2"/>
+                        <SplineDoubleKeyFrame KeyTime="0:0:0" Value="0" KeySpline="0.5,0 0.5,1" />
+                        <SplineDoubleKeyFrame KeyTime="0:0:2" Value="155" KeySpline="0.5,0 0.5,1" />
+                        <SplineDoubleKeyFrame KeyTime="0:0:4" Value="155" KeySpline="0.5,0 0.5,1" />
+                        <SplineDoubleKeyFrame KeyTime="0:0:6" Value="-6" KeySpline="0.5,0 0.5,1" />
+                        <SplineDoubleKeyFrame KeyTime="0:0:8" Value="0" KeySpline="0.5,0 0.5,1" />
                       </DoubleAnimationUsingKeyFrames>
-
-                      <!-- Animate the Vertical (Y) position -->
                       <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Glint" Storyboard.TargetProperty="(Canvas.Top)">
-                        <!-- Start on top edge -->
-                        <LinearDoubleKeyFrame KeyTime="0:0:0" Value="-3"/>
-                        <!-- Hold on top edge -->
-                        <LinearDoubleKeyFrame KeyTime="0:0:1" Value="-3"/>
-                        <!-- Move down right edge -->
-                        <LinearDoubleKeyFrame KeyTime="0:0:2" Value="35"/>
-                        <!-- Hold on bottom edge -->
-                        <LinearDoubleKeyFrame KeyTime="0:0:3" Value="35"/>
-                        <!-- Move up left edge to complete loop -->
-                        <LinearDoubleKeyFrame KeyTime="0:0:4" Value="-3"/>
+                        <SplineDoubleKeyFrame KeyTime="0:0:0" Value="-2" KeySpline="0.5,0 0.5,1" />
+                        <SplineDoubleKeyFrame KeyTime="0:0:1" Value="0" KeySpline="0.5,0 0.5,1" />
+                        <SplineDoubleKeyFrame KeyTime="0:0:2" Value="6" KeySpline="0.5,0 0.5,1" />
+                        <SplineDoubleKeyFrame KeyTime="0:0:4" Value="32" KeySpline="0.5,0 0.5,1" />
+                        <SplineDoubleKeyFrame KeyTime="0:0:6" Value="34" KeySpline="0.5,0 0.5,1" />
+                        <SplineDoubleKeyFrame KeyTime="0:0:8" Value="-2" KeySpline="0.5,0 0.5,1" />
                       </DoubleAnimationUsingKeyFrames>
 
+                      <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Glint" Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)">
+                        <SplineDoubleKeyFrame KeyTime="0:0:0"    Value="0" KeySpline="0.5,0 0.5,1" />
+                        <SplineDoubleKeyFrame KeyTime="0:0:1"  Value="0" KeySpline="0.5,0 0.5,1" />
+
+                        <SplineDoubleKeyFrame KeyTime="0:0:2"    Value="-15" KeySpline="0.5,0 0.5,1" />
+                        <SplineDoubleKeyFrame KeyTime="0:0:3"    Value="0" KeySpline="0.5,0 0.5,1" />
+                        <SplineDoubleKeyFrame KeyTime="0:0:4" Value="15" KeySpline="0.5,0 0.5,1" />
+
+                        <SplineDoubleKeyFrame KeyTime="0:0:5"  Value="0" KeySpline="0.5,0 0.5,1" />
+                        <SplineDoubleKeyFrame KeyTime="0:0:6"    Value="-15" KeySpline="0.5,0 0.5,1" />
+                        <SplineDoubleKeyFrame KeyTime="0:0:7"    Value="0" KeySpline="0.5,0 0.5,1" />
+                        <SplineDoubleKeyFrame KeyTime="0:0:7.33"    Value="15" KeySpline="0.5,0 0.5,1" />
+                        <SplineDoubleKeyFrame KeyTime="0:0:8"    Value="0" KeySpline="0.5,0 0.5,1" />
+                      </DoubleAnimationUsingKeyFrames>
                     </Storyboard>
                   </BeginStoryboard>
                 </DataTrigger.EnterActions>
