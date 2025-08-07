@@ -57,6 +57,7 @@
 -   [ ] **5.6:** Create a `WelcomeView.xaml` UserControl with "New Live Scan" and "Open Snapshot..." options.
 -   [ ] **5.7:** Implement the "Open Snapshot" command to use `SnapshotService` and navigate to the results view.
 -   [ ] **5.8:** Add a read-only metadata display area to the `ResultsView` (for machine name, notes, etc.), visible only when viewing a snapshot.
+-   [x] **5.9:** Add scanned sources metadata to snapshots and display as a grid in ResultsView details pane (FR-02).
 
 ### Phase 6: Final Polish & Release Readiness
 

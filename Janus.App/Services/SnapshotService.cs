@@ -26,7 +26,8 @@ public class SnapshotService
         SnapshotCreated = session.SnapshotCreated,
         MachineName = session.MachineName,
         UserNotes = session.UserNotes,
-        Entries = session.Entries
+        Entries = session.Entries,
+        ScannedSources = session.ScannedSources
       });
       await db.SaveChangesAsync();
     } catch (SqliteException ex) {
@@ -43,7 +44,10 @@ public class SnapshotService
           .Options;
       await using var db = new EventSnapshotDbContext(options);
       await db.Database.EnsureCreatedAsync();
-      var res = await db.ScanSessions.Include(s => s.Entries).FirstOrDefaultAsync();
+      var res = await db.ScanSessions
+        .Include(s => s.Entries)
+        .Include(s => s.ScannedSources)
+        .FirstOrDefaultAsync();
       return res;
     } catch (SqliteException ex) {
       // Handle schema mismatch or file errors
@@ -62,6 +66,7 @@ public class SnapshotService
       await using var db = new EventSnapshotDbContext(options);
       await db.Database.EnsureCreatedAsync();
       var res = await db.ScanSessions
+        .Include(s => s.ScannedSources)
         .Select(s => new {
           Session = s,
           Count = s.Entries.Count

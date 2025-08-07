@@ -116,12 +116,12 @@ public class LiveScanViewModel : INotifyPropertyChanged
       ScanStatus = tuple.status;
     });
     try {
-      var results = await EventLogScannerService.ScanAllLogsAsync(scanTimestamp, before, after, progress, cts.Token);
+      var scanResult = await EventLogScannerService.ScanAllLogsAsync(scanTimestamp, before, after, progress, cts.Token);
       ScanStatus = "Scan complete";
       // NAVIGATE TO RESULTS VIEW
       if (setCurrentView != null) {
         var resultsVm = new ResultsViewModel(setCurrentView, ResultsViewModel.PreviousView.LiveScan);
-        resultsVm.LoadEvents(results);
+        resultsVm.LoadEvents(scanResult.Entries);
         resultsVm.SetMetadata(new ScanSession {
           Id = Guid.NewGuid(),
           Timestamp = scanTimestamp,
@@ -130,7 +130,8 @@ public class LiveScanViewModel : INotifyPropertyChanged
           SnapshotCreated = DateTime.UtcNow,
           MachineName = Environment.MachineName,
           UserNotes = string.Empty,
-          Entries = [.. results]
+          Entries = [.. scanResult.Entries],
+          ScannedSources = [.. scanResult.ScannedSources]
         });
         setCurrentView(new ResultsView { DataContext = resultsVm });
       }

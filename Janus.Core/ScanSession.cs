@@ -1,5 +1,7 @@
 namespace Janus.Core;
 
+using System.Collections.ObjectModel;
+
 /// <summary>
 /// Represents a scan session for event log analysis.
 /// </summary>
@@ -29,4 +31,9 @@ public class ScanSession
   public required string MachineName { get; init; }
   public required string? UserNotes { get; init; }
   public required ICollection<EventLogEntry> Entries { get; init; }
+
+  /// <summary>
+  /// The list of scanned sources for this session.
+  /// </summary>
+  public required ICollection<ScannedSource> ScannedSources { get; init; } = new Collection<ScannedSource>();
 }

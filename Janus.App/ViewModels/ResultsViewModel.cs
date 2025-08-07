@@ -301,6 +301,16 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   public string MetadataTimestampLocal => Metadata?.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") ?? "";
   public string MetadataSnapshotCreatedLocal => Metadata?.SnapshotCreated.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") ?? "";
 
+  public ObservableCollection<ScannedSource> ScannedSources { get; } = new();
+
+  public void LoadScannedSources(IEnumerable<ScannedSource> sources)
+  {
+    ScannedSources.Clear();
+    foreach (var s in sources.OrderBy(x => x.SourceName))
+      ScannedSources.Add(s);
+    OnPropertyChanged(nameof(ScannedSources));
+  }
+
   private readonly Action<object>? setCurrentView;
   private readonly PreviousView previousView;
 
@@ -431,6 +441,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     OnPropertyChanged(nameof(Metadata));
     OnPropertyChanged(nameof(MetadataTimestampLocal));
     OnPropertyChanged(nameof(MetadataSnapshotCreatedLocal));
+    LoadScannedSources(session.ScannedSources ?? []);
   }
 
   private async Task SaveSnapshotAsync()

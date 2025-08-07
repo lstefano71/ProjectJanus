@@ -95,7 +95,7 @@ ProjectJanus.sln
 - ResultsView filter section redesigned as a right-side panel with advanced multi-select controls for log level, source, and log.
 - Multi-select controls support search, virtualization, cross-filtering, dynamic counts, keyboard/mouse accessibility, and theming.
 - Placeholder for future time filter UI included in the filter panel.
-
+- Snapshots now include scanned sources metadata (source name, event count, scan status). ResultsView shows a new grid in the details pane for scanned sources, with status icons and color coding. (FR-02)
 
 ---
 

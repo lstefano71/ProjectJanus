@@ -30,7 +30,7 @@ public class EventLogScannerService
   /// <param name="progress">Progress reporter for scan status and event count.</param>
   /// <param name="cancellationToken">Cancellation token for scan operation.</param>
   /// <returns>List of EventLogEntry objects found.</returns>
-  public static async Task<IReadOnlyList<EventLogEntry>> ScanAllLogsAsync(
+  public static async Task<ScanResult> ScanAllLogsAsync(
       DateTime timestamp,
       TimeSpan before,
       TimeSpan after,
@@ -40,6 +40,7 @@ public class EventLogScannerService
     var session = EventLogSession.GlobalSession;
     var logNames = session.GetLogNames();
     var entries = new List<EventLogEntry>();
+    var scannedSources = new List<ScannedSource>();
     var tasks = new List<Task>();
     var eventCount = 0;
     var scanEventIdCounter = 0;
@@ -47,7 +48,9 @@ public class EventLogScannerService
     var to = (timestamp + after).ToUniversalTime();
 
     foreach (var logName in logNames) {
-      tasks.Add(Task.Run(async () => {
+      tasks.Add(Task.Run(() => {
+        int sourceEventCount = 0;
+        ScanStatus status = ScanStatus.Success;
         try {
           cancellationToken.ThrowIfCancellationRequested();
           var xpath = $"*[System[TimeCreated[@SystemTime>='{from:O}' and @SystemTime<='{to:O}']]]";
@@ -69,20 +72,34 @@ public class EventLogScannerService
             };
             lock (entries) {
               entries.Add(entry);
+              sourceEventCount++;
               Interlocked.Increment(ref eventCount);
             }
             progress?.Report(($"Scanning: {logName} | {eventCount} events", eventCount));
           }
         } catch (EventLogException ex) {
+          status = ScanStatus.Failed;
           progress?.Report(($"Error scanning {logName}: {ex.Message}", eventCount));
         } catch (UnauthorizedAccessException ex) {
+          status = ScanStatus.Failed;
           progress?.Report(($"Access denied to {logName}: {ex.Message}", eventCount));
-          // Skip this log and continue
+        } catch (OperationCanceledException) {
+          status = ScanStatus.Partial;
+        }
+        lock (scannedSources) {
+          scannedSources.Add(new ScannedSource {
+            SourceName = logName,
+            EventsRetrieved = sourceEventCount,
+            Status = status
+          });
         }
       }, cancellationToken));
     }
     await Task.WhenAll(tasks);
     progress?.Report(("Scan complete", eventCount));
-    return entries;
+    return new ScanResult {
+      Entries = entries,
+      ScannedSources = scannedSources
+    };
   }
 }
