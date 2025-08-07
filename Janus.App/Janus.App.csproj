@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Resources/JanusIcon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,6 +35,10 @@
 
   <ItemGroup Condition="'$(_TargetAssemblyProjectName)' != ''">
     <Compile Include="$(IntermediateOutputPath)$(_TargetAssemblyProjectName).Version.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Resources/JanusIcon.ico" />
   </ItemGroup>
 
 </Project>
