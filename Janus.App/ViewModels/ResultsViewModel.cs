@@ -479,7 +479,8 @@ public partial class ResultsViewModel : INotifyPropertyChanged
           SnapshotCreated = DateTime.UtcNow,
           MachineName = Metadata.MachineName,
           UserNotes = vm.UserNotes,
-          Entries = Metadata.Entries
+          Entries = Metadata.Entries,
+          ScannedSources = Metadata.ScannedSources // Fix: required property
         };
         var service = new SnapshotService();
         await SnapshotService.SaveSnapshotAsync(filePath, updatedSession);

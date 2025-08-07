@@ -50,50 +50,105 @@
         </TextBlock>
       </Expander.Header>
     </Expander>
-    <!-- Metadata Panel Content -->
-    <StackPanel Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" Margin="0,0,20,0">
-      <TextBlock Text="Machine:" FontWeight="Bold" Margin="0,8,0,0"/>
-      <TextBlock Text="{Binding Metadata.MachineName}" Margin="0,0,0,8"/>
-      <TextBlock Text="Notes:" FontWeight="Bold"/>
-      <TextBlock Text="{Binding Metadata.UserNotes}" Margin="0,0,0,8"/>
-      <TextBlock Text="Scan Timestamp:" FontWeight="Bold"/>
-      <TextBlock Text="{Binding MetadataTimestampLocal}" Margin="0,0,0,8"/>
-      <TextBlock Text="Window:" FontWeight="Bold"/>
-      <TextBlock Text="{Binding Metadata.Window}" Margin="0,0,0,8"/>
-      <TextBlock Text="Snapshot Created:" FontWeight="Bold"/>
-      <TextBlock Text="{Binding MetadataSnapshotCreatedLocal}" Margin="0,0,0,8"/>
-      <TextBlock Text="Minutes Before:" FontWeight="Bold"/>
-      <TextBlock Text="{Binding Metadata.MinutesBefore}" Margin="0,0,0,8"/>
-      <TextBlock Text="Minutes After:" FontWeight="Bold"/>
-      <TextBlock Text="{Binding Metadata.MinutesAfter}" Margin="0,0,0,8"/>
-    </StackPanel>
+    <!-- Metadata Panel Content: Use Grid for proper layout and scrolling -->
+    <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" Margin="0,0,20,0">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/> <!-- Machine label -->
+        <RowDefinition Height="Auto"/> <!-- Machine value -->
+        <RowDefinition Height="Auto"/> <!-- Notes label -->
+        <RowDefinition Height="Auto"/> <!-- Notes value -->
+        <RowDefinition Height="Auto"/> <!-- Scan Timestamp label -->
+        <RowDefinition Height="Auto"/> <!-- Scan Timestamp value -->
+        <RowDefinition Height="Auto"/> <!-- Window label -->
+        <RowDefinition Height="Auto"/> <!-- Window value -->
+        <RowDefinition Height="Auto"/> <!-- Snapshot Created label -->
+        <RowDefinition Height="Auto"/> <!-- Snapshot Created value -->
+        <RowDefinition Height="Auto"/> <!-- Minutes Before label -->
+        <RowDefinition Height="Auto"/> <!-- Minutes Before value -->
+        <RowDefinition Height="Auto"/> <!-- Minutes After label -->
+        <RowDefinition Height="Auto"/> <!-- Minutes After value -->
+        <RowDefinition Height="*"/>   <!-- ScannedSources list -->
+      </Grid.RowDefinitions>
+      <TextBlock Text="Machine:" FontWeight="Bold" Margin="0,8,0,0" Grid.Row="0"/>
+      <TextBlock Text="{Binding Metadata.MachineName}" Margin="0,0,0,8" Grid.Row="1"/>
+      <TextBlock Text="Notes:" FontWeight="Bold" Grid.Row="2"/>
+      <TextBlock Text="{Binding Metadata.UserNotes}" Margin="0,0,0,8" Grid.Row="3"/>
+      <TextBlock Text="Scan Timestamp:" FontWeight="Bold" Grid.Row="4"/>
+      <TextBlock Text="{Binding MetadataTimestampLocal}" Margin="0,0,0,8" Grid.Row="5"/>
+      <TextBlock Text="Window:" FontWeight="Bold" Grid.Row="6"/>
+      <TextBlock Text="{Binding Metadata.Window}" Margin="0,0,0,8" Grid.Row="7"/>
+      <TextBlock Text="Snapshot Created:" FontWeight="Bold" Grid.Row="8"/>
+      <TextBlock Text="{Binding MetadataSnapshotCreatedLocal}" Margin="0,0,0,8" Grid.Row="9"/>
+      <TextBlock Text="Minutes Before:" FontWeight="Bold" Grid.Row="10"/>
+      <TextBlock Text="{Binding Metadata.MinutesBefore}" Margin="0,0,0,8" Grid.Row="11"/>
+      <TextBlock Text="Minutes After:" FontWeight="Bold" Grid.Row="12"/>
+      <TextBlock Text="{Binding Metadata.MinutesAfter}" Margin="0,0,0,8" Grid.Row="13"/>
+      <!-- ScannedSources List: fills remaining space, scrollable -->
+      <ScrollViewer Grid.Row="14" VerticalScrollBarVisibility="Auto">
+        <ItemsControl ItemsSource="{Binding ScannedSources}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <VirtualizingStackPanel/>
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal" Margin="0,1,0,1">
+                <ContentControl Margin="0,0,6,0" VerticalAlignment="Center">
+                  <ContentControl.Style>
+                    <Style TargetType="ContentControl">
+                      <Setter Property="ContentTemplate">
+                        <Setter.Value>
+                          <DataTemplate>
+                            <Ellipse Width="12" Height="12" Fill="Gray"/>
+                          </DataTemplate>
+                        </Setter.Value>
+                      </Setter>
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding Status}" Value="Success">
+                          <Setter Property="ContentTemplate">
+                            <Setter.Value>
+                              <DataTemplate>
+                                <Path Data="M2,7 L6,11 L14,3" Stroke="Green" StrokeThickness="2" Fill="Transparent" Width="14" Height="14"/>
+                              </DataTemplate>
+                            </Setter.Value>
+                          </Setter>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Status}" Value="Partial">
+                          <Setter Property="ContentTemplate">
+                            <Setter.Value>
+                              <DataTemplate>
+                                <Path Data="M2,7 L12,7" Stroke="Orange" StrokeThickness="2" Fill="Transparent" Width="14" Height="14"/>
+                              </DataTemplate>
+                            </Setter.Value>
+                          </Setter>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Status}" Value="Failed">
+                          <Setter Property="ContentTemplate">
+                            <Setter.Value>
+                              <DataTemplate>
+                                <Path Data="M3,3 L11,11 M11,3 L3,11" Stroke="Red" StrokeThickness="2" Fill="Transparent" Width="14" Height="14"/>
+                              </DataTemplate>
+                            </Setter.Value>
+                          </Setter>
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </ContentControl.Style>
+                </ContentControl>
+                <Border Background="#FFE0E0E0" CornerRadius="3" Margin="0,0,6,0" Padding="4,0" VerticalAlignment="Center">
+                  <TextBlock Text="{Binding EventsRetrieved}" FontSize="10"
+                             MinWidth="22"
+                             VerticalAlignment="Center" Foreground="Black"/>
+                </Border>
+                <TextBlock Text="{Binding SourceName}" VerticalAlignment="Center" FontSize="10"/>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Grid>
     <!-- Scanned Sources Grid -->
-    <GroupBox Header="Scanned Sources" Margin="0,12,0,0" Padding="6,4,6,6">
-      <DataGrid ItemsSource="{Binding ScannedSources}" AutoGenerateColumns="False" HeadersVisibility="Column"
-                CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False" IsReadOnly="True"
-                RowHeight="28" MinHeight="80" MaxHeight="200" Margin="0,0,0,0">
-        <DataGrid.Columns>
-          <DataGridTextColumn Header="Source Name" Binding="{Binding SourceName}" Width="*" />
-          <DataGridTextColumn Header="Events Retrieved" Binding="{Binding EventsRetrieved}" Width="120" />
-          <DataGridTemplateColumn Header="Scan Status" Width="120">
-            <DataGridTemplateColumn.CellTemplate>
-              <DataTemplate>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                  <Ellipse Width="14" Height="14" Margin="0,0,6,0">
-                    <Ellipse.Fill>
-                      <MultiBinding Converter="{StaticResource ScanStatusToBrushConverter}">
-                        <Binding Path="Status" />
-                      </MultiBinding>
-                    </Ellipse.Fill>
-                  </Ellipse>
-                  <TextBlock Text="{Binding Status}" FontWeight="SemiBold"/>
-                </StackPanel>
-              </DataTemplate>
-            </DataGridTemplateColumn.CellTemplate>
-          </DataGridTemplateColumn>
-        </DataGrid.Columns>
-      </DataGrid>
-    </GroupBox>
     <!-- Filters and Status -->
     <!-- Right-side filter panel -->
     <Border Grid.Column="3" Grid.Row="0" Grid.RowSpan="4" Margin="4,0,0,0" Background="{DynamicResource ControlBackgroundBrush}" BorderBrush="{DynamicResource ControlBorderBrush}" BorderThickness="1" CornerRadius="6">
