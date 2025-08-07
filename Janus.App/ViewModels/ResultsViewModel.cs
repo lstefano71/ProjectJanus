@@ -1,8 +1,5 @@
-using System.Windows.Documents;
-using System.Windows.Media;
 using Janus.App.Services;
 using Janus.Core;
-using Janus.App.Utils;
 
 using Microsoft.Win32;
 
@@ -12,7 +9,9 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Janus.App;
 
