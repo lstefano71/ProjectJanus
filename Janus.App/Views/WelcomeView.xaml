@@ -30,6 +30,7 @@
 
     <Style x:Key="AnimatedGlowButtonStyle" TargetType="Button">
       <!-- Default property values -->
+      <Setter Property="FontSize" Value="14"/>
       <Setter Property="Background" Value="#f3f5f7"/>
       <Setter Property="Foreground" Value="#222"/>
       <Setter Property="FontWeight" Value="Bold"/>
