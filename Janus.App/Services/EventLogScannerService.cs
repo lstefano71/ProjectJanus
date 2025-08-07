@@ -7,16 +7,14 @@ namespace Janus.App;
 /// <summary>
 /// Service for scanning Windows event logs around a critical timestamp.
 /// </summary>
-public class EventLogScannerService
-{
+public class EventLogScannerService {
   /// <summary>
   /// Retrieves all available system event log names using EventLogSession.
   /// </summary>
-  public static IReadOnlyList<string> GetAllLogNames()
-  {
-    var session = EventLogSession.GlobalSession;
+  public static IReadOnlyList<string> GetAllLogNames() {
+    EventLogSession session = EventLogSession.GlobalSession;
     var logNames = new List<string>();
-    foreach (var log in session.GetLogNames()) {
+    foreach (string? log in session.GetLogNames()) {
       logNames.Add(log);
     }
     return logNames;
@@ -39,20 +37,19 @@ public class EventLogScannerService
       IProgress<Janus.App.SourceScanProgress>? perSourceProgress,
       CancellationToken cancellationToken,
       TimeSpan? progressUpdateInterval = null,
-      int progressUpdateEventCount = 250)
-  {
+      int progressUpdateEventCount = 250) {
     progressUpdateInterval ??= TimeSpan.FromMilliseconds(250);
-    var session = EventLogSession.GlobalSession;
-    var logNames = session.GetLogNames();
+    EventLogSession session = EventLogSession.GlobalSession;
+    IEnumerable<string> logNames = session.GetLogNames();
     var entries = new List<EventLogEntry>();
     var scannedSources = new List<ScannedSource>();
     var tasks = new List<Task>();
-    var eventCount = 0;
-    var scanEventIdCounter = 0;
-    var from = (timestamp - before).ToUniversalTime();
-    var to = (timestamp + after).ToUniversalTime();
+    int eventCount = 0;
+    int scanEventIdCounter = 0;
+    DateTime from = (timestamp - before).ToUniversalTime();
+    DateTime to = (timestamp + after).ToUniversalTime();
 
-    foreach (var logName in logNames) {
+    foreach (string? logName in logNames) {
       tasks.Add(Task.Run(() => {
         int sourceEventCount = 0;
         ScanStatus status = ScanStatus.Success;
@@ -62,7 +59,7 @@ public class EventLogScannerService
         int eventsSinceLastReport = 0;
         try {
           cancellationToken.ThrowIfCancellationRequested();
-          var xpath = $"*[System[TimeCreated[@SystemTime>='{from:O}' and @SystemTime<='{to:O}']]]";
+          string xpath = $"*[System[TimeCreated[@SystemTime>='{from:O}' and @SystemTime<='{to:O}']]]";
           using var reader = new EventLogReader(new EventLogQuery(logName, PathType.LogName, xpath));
           for (EventRecord? record = reader.ReadEvent(); record is not null; record = reader.ReadEvent()) {
             cancellationToken.ThrowIfCancellationRequested();

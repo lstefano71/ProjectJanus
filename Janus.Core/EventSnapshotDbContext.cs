@@ -5,14 +5,12 @@ namespace Janus.Core;
 /// <summary>
 /// EF Core context for event log snapshots.
 /// </summary>
-public class EventSnapshotDbContext(DbContextOptions<EventSnapshotDbContext> options) : DbContext(options)
-{
+public class EventSnapshotDbContext(DbContextOptions<EventSnapshotDbContext> options) : DbContext(options) {
   public DbSet<EventLogEntry> EventLogEntries => Set<EventLogEntry>();
   public DbSet<ScanSession> ScanSessions => Set<ScanSession>();
   public DbSet<ScannedSource> ScannedSources => Set<ScannedSource>();
 
-  protected override void OnModelCreating(ModelBuilder modelBuilder)
-  {
+  protected override void OnModelCreating(ModelBuilder modelBuilder) {
     base.OnModelCreating(modelBuilder);
 
     modelBuilder.Entity<ScanSession>()

@@ -3,8 +3,7 @@ namespace Janus.Core;
 /// <summary>
 /// Represents a single event log entry scanned by Project Janus.
 /// </summary>
-public class EventLogEntry
-{
+public class EventLogEntry {
   public required long Id { get; init; }
   public required string LogName { get; init; }
   public required DateTime TimeCreated { get; init; }

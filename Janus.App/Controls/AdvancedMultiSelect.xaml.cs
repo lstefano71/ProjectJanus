@@ -7,14 +7,12 @@ using System.Windows.Input;
 
 namespace Janus.App.Controls;
 
-public partial class AdvancedMultiSelect : UserControl, INotifyPropertyChanged
-{
-  public AdvancedMultiSelect()
-  {
+public partial class AdvancedMultiSelect : UserControl, INotifyPropertyChanged {
+  public AdvancedMultiSelect() {
     InitializeComponent();
     SelectAllVisibleCommand = new RelayCommand(_ => SelectAllVisible());
     ShowOnlySelectedCommand = new RelayCommand(_ => ShowOnlySelected = !ShowOnlySelected);
-    FilteredItems = new ObservableCollection<ItemViewModel>();
+    FilteredItems = [];
     UpdateFilteredItems();
   }
 
@@ -91,16 +89,22 @@ public partial class AdvancedMultiSelect : UserControl, INotifyPropertyChanged
   // Filtered items for display
   public ObservableCollection<ItemViewModel> FilteredItems { get; }
 
-  private void UpdateFilteredItems()
-  {
+  private void UpdateFilteredItems() {
     FilteredItems.Clear();
-    if (ItemsSource == null) return;
-    var items = ItemsSource.Cast<object>();
-    if (!string.IsNullOrWhiteSpace(SearchText))
+    if (ItemsSource == null) {
+      return;
+    }
+
+    IEnumerable<object> items = ItemsSource.Cast<object>();
+    if (!string.IsNullOrWhiteSpace(SearchText)) {
       items = items.Where(i => i?.ToString()?.IndexOf(SearchText, StringComparison.OrdinalIgnoreCase) >= 0);
-    if (ShowOnlySelected && SelectedItems != null)
+    }
+
+    if (ShowOnlySelected && SelectedItems != null) {
       items = items.Where(i => SelectedItems.Contains(i));
-    foreach (var item in items) {
+    }
+
+    foreach (object? item in items) {
       FilteredItems.Add(new ItemViewModel(this) {
         Value = item,
         DisplayText = item?.ToString() ?? "",
@@ -111,35 +115,40 @@ public partial class AdvancedMultiSelect : UserControl, INotifyPropertyChanged
     OnPropertyChanged(nameof(FilteredItems));
   }
 
-  private void SelectAllVisible()
-  {
-    if (SelectedItems == null) return;
-    foreach (var item in FilteredItems.Select(vm => vm.Value).ToList()) {
-      if (!SelectedItems.Contains(item))
+  private void SelectAllVisible() {
+    if (SelectedItems == null) {
+      return;
+    }
+
+    foreach (object? item in FilteredItems.Select(vm => vm.Value).ToList()) {
+      if (!SelectedItems.Contains(item)) {
         SelectedItems.Add(item);
+      }
     }
     UpdateFilteredItems();
   }
 
-  private void ToggleItem(object param)
-  {
-    if (SelectedItems == null || param == null) return;
-    if (SelectedItems.Contains(param))
+  private void ToggleItem(object param) {
+    if (SelectedItems == null || param == null) {
+      return;
+    }
+
+    if (SelectedItems.Contains(param)) {
       SelectedItems.Remove(param);
-    else
+    } else {
       SelectedItems.Add(param);
+    }
+
     UpdateFilteredItems();
   }
 
   public event PropertyChangedEventHandler? PropertyChanged;
   protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
-  public class ItemViewModel : INotifyPropertyChanged
-  {
+  public class ItemViewModel : INotifyPropertyChanged {
     private readonly AdvancedMultiSelect parent;
     private bool isSelected;
-    public ItemViewModel(AdvancedMultiSelect parent)
-    {
+    public ItemViewModel(AdvancedMultiSelect parent) {
       this.parent = parent;
     }
     public object Value { get; set; }
@@ -151,10 +160,11 @@ public partial class AdvancedMultiSelect : UserControl, INotifyPropertyChanged
         if (isSelected != value) {
           isSelected = value;
           if (parent.SelectedItems != null && Value != null) {
-            if (isSelected && !parent.SelectedItems.Contains(Value))
+            if (isSelected && !parent.SelectedItems.Contains(Value)) {
               parent.SelectedItems.Add(Value);
-            else if (!isSelected && parent.SelectedItems.Contains(Value))
+            } else if (!isSelected && parent.SelectedItems.Contains(Value)) {
               parent.SelectedItems.Remove(Value);
+            }
           }
           OnPropertyChanged(nameof(IsSelected));
         }

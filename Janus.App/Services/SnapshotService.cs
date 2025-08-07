@@ -8,20 +8,17 @@ namespace Janus.App;
 /// <summary>
 /// Service for saving and loading event log scan snapshots.
 /// </summary>
-public class SnapshotService
-{
-  private static DbContextOptions<EventSnapshotDbContext> CreateOptions(string filePath)
-  {
+public class SnapshotService {
+  private static DbContextOptions<EventSnapshotDbContext> CreateOptions(string filePath) {
     return new DbContextOptionsBuilder<EventSnapshotDbContext>()
       .UseSqlite($"Data Source={filePath};Pooling=false")
       .LogTo(s => System.Diagnostics.Trace.WriteLine(s), Microsoft.Extensions.Logging.LogLevel.Information)
       .Options;
   }
 
-  public static async Task SaveSnapshotAsync(string filePath, ScanSession session)
-  {
+  public static async Task SaveSnapshotAsync(string filePath, ScanSession session) {
     try {
-      var options = CreateOptions(filePath);
+      DbContextOptions<EventSnapshotDbContext> options = CreateOptions(filePath);
       await using var db = new EventSnapshotDbContext(options);
       await db.Database.EnsureCreatedAsync();
       db.ScanSessions.Add(new ScanSession {
@@ -42,13 +39,12 @@ public class SnapshotService
     }
   }
 
-  public static async Task<ScanSession?> LoadSnapshotAsync(string filePath)
-  {
+  public static async Task<ScanSession?> LoadSnapshotAsync(string filePath) {
     try {
-      var options = CreateOptions(filePath);
+      DbContextOptions<EventSnapshotDbContext> options = CreateOptions(filePath);
       await using var db = new EventSnapshotDbContext(options);
       await db.Database.EnsureCreatedAsync();
-      var res = await db.ScanSessions
+      ScanSession? res = await db.ScanSessions
         .AsSplitQuery()
         .Include(s => s.Entries)
         .Include(s => s.ScannedSources)
@@ -61,17 +57,16 @@ public class SnapshotService
   }
 
 
-  public static async Task<(ScanSession?, int?)> LoadSnapshotMetadataAsync(string filePath)
-  {
+  public static async Task<(ScanSession?, int?)> LoadSnapshotMetadataAsync(string filePath) {
     try {
-      var options = CreateOptions(filePath);
+      DbContextOptions<EventSnapshotDbContext> options = CreateOptions(filePath);
       await using var db = new EventSnapshotDbContext(options);
       await db.Database.EnsureCreatedAsync();
       var res = await db.ScanSessions
         .Include(s => s.ScannedSources)
         .Select(s => new {
           Session = s,
-          Count = s.Entries.Count
+          s.Entries.Count
         }).FirstOrDefaultAsync();
 
       return (res?.Session, res?.Count);

@@ -15,13 +15,11 @@ using System.Windows.Media;
 
 namespace Janus.App;
 
-public class EventLogEntryDisplay : INotifyPropertyChanged
-{
+public class EventLogEntryDisplay : INotifyPropertyChanged {
   private readonly EventLogEntry entry;
   private readonly Func<string> getSearchText;
 
-  public EventLogEntryDisplay(EventLogEntry entry, Func<string>? getSearchText = null)
-  {
+  public EventLogEntryDisplay(EventLogEntry entry, Func<string>? getSearchText = null) {
     this.entry = entry;
     this.getSearchText = getSearchText ?? (() => string.Empty);
   }
@@ -41,22 +39,26 @@ public class EventLogEntryDisplay : INotifyPropertyChanged
 
   public IEnumerable<Inline> MessageInlines {
     get {
-      var message = entry.Message ?? string.Empty;
-      var search = getSearchText();
-      if (string.IsNullOrEmpty(search))
-        return new Inline[] { new Run(message) };
+      string message = entry.Message ?? string.Empty;
+      string search = getSearchText();
+      if (string.IsNullOrEmpty(search)) {
+        return [new Run(message)];
+      }
+
       var inlines = new List<Inline>();
       int idx = 0;
       int searchLen = search.Length;
-      var comparison = StringComparison.OrdinalIgnoreCase;
+      StringComparison comparison = StringComparison.OrdinalIgnoreCase;
       while (idx < message.Length) {
         int matchIdx = message.IndexOf(search, idx, comparison);
         if (matchIdx < 0) {
-          inlines.Add(new Run(message.Substring(idx)));
+          inlines.Add(new Run(message[idx..]));
           break;
         }
-        if (matchIdx > idx)
-          inlines.Add(new Run(message.Substring(idx, matchIdx - idx)));
+        if (matchIdx > idx) {
+          inlines.Add(new Run(message[idx..matchIdx]));
+        }
+
         var highlight = new Run(message.Substring(matchIdx, searchLen)) {
           Background = Brushes.Yellow,
           Foreground = Brushes.Black
@@ -71,8 +73,7 @@ public class EventLogEntryDisplay : INotifyPropertyChanged
   public event PropertyChangedEventHandler? PropertyChanged;
 }
 
-public partial class ResultsViewModel : INotifyPropertyChanged
-{
+public partial class ResultsViewModel : INotifyPropertyChanged {
   public enum PreviousView { Welcome, LiveScan }
 
   private readonly UserUiSettingsService uiSettingsService = UserUiSettingsService.Instance;
@@ -190,11 +191,12 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     set { isLogLevelPopupOpen = value; OnPropertyChanged(); }
   }
   public ICommand ToggleLogLevelCommand { get; }
-  private void ToggleLogLevel(object? level)
-  {
+  private void ToggleLogLevel(object? level) {
     if (level is string logLevel) {
-      if (!SelectedLogLevels.Remove(logLevel))
+      if (!SelectedLogLevels.Remove(logLevel)) {
         SelectedLogLevels.Add(logLevel);
+      }
+
       OnPropertyChanged(nameof(SelectedLogLevelsDisplay));
       RebuildView(); // Call the new rebuild method
 
@@ -228,13 +230,13 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   public bool IsAnyGroupingEnabled => IsGroupingEnabled || IsGroupByLevelEnabled;
 
   // This method is now correct and necessary. It manages the DATA, not the visuals.
-  private void UpdateGrouping()
-  {
+  private void UpdateGrouping() {
     EventsView.GroupDescriptions.Clear();
-    if (IsGroupingEnabled)
+    if (IsGroupingEnabled) {
       EventsView.GroupDescriptions.Add(new PropertyGroupDescription("LogName"));
-    else if (IsGroupByLevelEnabled)
+    } else if (IsGroupByLevelEnabled) {
       EventsView.GroupDescriptions.Add(new PropertyGroupDescription("Level"));
+    }
   }
 
   // Progress/Status
@@ -259,8 +261,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
       RebuildView(); // Call the new rebuild method
     }
   }
-  private void NotifyCrossFilterProperties()
-  {
+  private void NotifyCrossFilterProperties() {
     OnPropertyChanged(nameof(LogLevelCountProvider));
     OnPropertyChanged(nameof(SourceCountProvider));
     OnPropertyChanged(nameof(LogNameCountProvider));
@@ -269,8 +270,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     OnPropertyChanged(nameof(LogNames));
   }
 
-  private void RebuildView()
-  {
+  private void RebuildView() {
     // 1. Create a completely new CollectionViewSource.
     var cvs = new CollectionViewSource { Source = Events };
 
@@ -301,13 +301,14 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   public string MetadataTimestampLocal => Metadata?.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") ?? "";
   public string MetadataSnapshotCreatedLocal => Metadata?.SnapshotCreated.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") ?? "";
 
-  public ObservableCollection<ScannedSource> ScannedSources { get; } = new();
+  public ObservableCollection<ScannedSource> ScannedSources { get; } = [];
 
-  public void LoadScannedSources(IEnumerable<ScannedSource> sources)
-  {
+  public void LoadScannedSources(IEnumerable<ScannedSource> sources) {
     ScannedSources.Clear();
-    foreach (var s in sources.OrderBy(x => x.SourceName))
+    foreach (ScannedSource? s in sources.OrderBy(x => x.SourceName)) {
       ScannedSources.Add(s);
+    }
+
     OnPropertyChanged(nameof(ScannedSources));
   }
 
@@ -349,8 +350,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   // Helper property: true if there is at least one checked row
   public bool HasCheckedRows => checkedScanEventIds.Count > 0;
 
-  public ResultsViewModel(Action<object>? setCurrentView = null, PreviousView previousView = PreviousView.Welcome)
-  {
+  public ResultsViewModel(Action<object>? setCurrentView = null, PreviousView previousView = PreviousView.Welcome) {
     this.setCurrentView = setCurrentView;
     this.previousView = previousView;
 
@@ -377,39 +377,49 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   }
 
   // Toggle checked state for a row (parameter is EventLogEntryDisplay)
-  private void ToggleChecked(object? param)
-  {
+  private void ToggleChecked(object? param) {
     if (param is EventLogEntryDisplay entry) {
-      if (!checkedScanEventIds.Add(entry.ScanEventId))
+      if (!checkedScanEventIds.Add(entry.ScanEventId)) {
         checkedScanEventIds.Remove(entry.ScanEventId);
+      }
+
       OnPropertyChanged(nameof(CheckedScanEventIds));
       OnPropertyChanged(nameof(HasCheckedRows));
-      if (ShowOnlyChecked) RebuildView();
+      if (ShowOnlyChecked) {
+        RebuildView();
+      }
     }
   }
 
-  private void GoBack()
-  {
-    if (setCurrentView == null) return;
-    if (previousView == PreviousView.LiveScan)
+  private void GoBack() {
+    if (setCurrentView == null) {
+      return;
+    }
+
+    if (previousView == PreviousView.LiveScan) {
       setCurrentView(new LiveScanViewModel(setCurrentView));
-    else
+    } else {
       setCurrentView(new WelcomeViewModel(setCurrentView));
+    }
   }
 
-  public void LoadEvents(IEnumerable<EventLogEntry> events)
-  {
+  public void LoadEvents(IEnumerable<EventLogEntry> events) {
     Events.Clear();
     Sources.Clear();
     LogNames.Clear();
-    foreach (var e in events) {
+    foreach (EventLogEntry e in events) {
       Events.Add(new EventLogEntryDisplay(e, () => SearchText));
-      if (!LogLevels.Contains(e.Level))
+      if (!LogLevels.Contains(e.Level)) {
         LogLevels.Add(e.Level);
-      if (!Sources.Contains(e.Source))
+      }
+
+      if (!Sources.Contains(e.Source)) {
         Sources.Add(e.Source);
-      if (!LogNames.Contains(e.LogName))
+      }
+
+      if (!LogNames.Contains(e.LogName)) {
         LogNames.Add(e.LogName);
+      }
     }
     EventsView.Refresh();
     UpdateGrouping();
@@ -417,22 +427,38 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     RebuildView();
   }
 
-  private bool FilterPredicate(EventLogEntryDisplay? e)
-  {
-    if (e == null) return false;
+  private bool FilterPredicate(EventLogEntryDisplay? e) {
+    if (e == null) {
+      return false;
+    }
     // If ShowOnlyChecked is enabled and there are checked rows, only show checked
-    if (ShowOnlyChecked && HasCheckedRows && !checkedScanEventIds.Contains(e.ScanEventId)) return false;
-    if (SelectedLogLevels.Count > 0 && !SelectedLogLevels.Contains(e.Level)) return false;
-    if (SelectedSources.Count > 0 && !SelectedSources.Contains(e.Source)) return false;
-    if (SelectedLogNames.Count > 0 && !SelectedLogNames.Contains(e.LogName)) return false;
-    if (!string.IsNullOrWhiteSpace(SearchText) && !(e.Message?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false)) return false;
+    if (ShowOnlyChecked && HasCheckedRows && !checkedScanEventIds.Contains(e.ScanEventId)) {
+      return false;
+    }
+
+    if (SelectedLogLevels.Count > 0 && !SelectedLogLevels.Contains(e.Level)) {
+      return false;
+    }
+
+    if (SelectedSources.Count > 0 && !SelectedSources.Contains(e.Source)) {
+      return false;
+    }
+
+    if (SelectedLogNames.Count > 0 && !SelectedLogNames.Contains(e.LogName)) {
+      return false;
+    }
+
+    if (!string.IsNullOrWhiteSpace(SearchText) && !(e.Message?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false)) {
+      return false;
+    }
+
     return true;
   }
 
-  private void CopyMessage()
-  {
-    if (SelectedEvent is not null)
+  private void CopyMessage() {
+    if (SelectedEvent is not null) {
       Clipboard.SetText(SelectedEvent.Message ?? string.Empty);
+    }
   }
 
   private string? snapshotFilePath;
@@ -451,19 +477,19 @@ public partial class ResultsViewModel : INotifyPropertyChanged
   public string? ContractedSnapshotFilePath =>
     string.IsNullOrEmpty(SnapshotFilePath) ? string.Empty : ResultsView.GetContractedSnapshotPath(SnapshotFilePath);
 
-  public void SetMetadata(ScanSession session, string? filePath = null)
-  {
+  public void SetMetadata(ScanSession session, string? filePath = null) {
     Metadata = session;
-    if (filePath != null)
+    if (filePath != null) {
       SnapshotFilePath = filePath;
+    }
+
     OnPropertyChanged(nameof(Metadata));
     OnPropertyChanged(nameof(MetadataTimestampLocal));
     OnPropertyChanged(nameof(MetadataSnapshotCreatedLocal));
     LoadScannedSources(session.ScannedSources ?? []);
   }
 
-  private async Task SaveSnapshotAsync()
-  {
+  private async Task SaveSnapshotAsync() {
     var dialog = new SaveSnapshotDialog();
     if (dialog.ShowDialog() == true) {
       var vm = (SaveSnapshotDialogViewModel)dialog.DataContext;
@@ -471,7 +497,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
       if (Metadata != null) {
         // Use ISO 8601 format for the pivot timestamp (Metadata.Timestamp)
         // Replace characters not allowed in file names (e.g., ':') with '-'
-        var iso = Metadata.Timestamp.ToUniversalTime().ToString("yyyy-MM-ddTHH-mm-ssZ");
+        string iso = Metadata.Timestamp.ToUniversalTime().ToString("yyyy-MM-ddTHH-mm-ssZ");
         defaultFileName = $"JanusSnapshot_{iso}.janus";
       }
       var saveFileDialog = new SaveFileDialog {
@@ -480,7 +506,7 @@ public partial class ResultsViewModel : INotifyPropertyChanged
         FileName = defaultFileName
       };
       if (saveFileDialog.ShowDialog() == true && Metadata is not null) {
-        var filePath = saveFileDialog.FileName;
+        string? filePath = saveFileDialog.FileName;
         if (File.Exists(filePath)) {
           try {
             File.Delete(filePath);
@@ -513,23 +539,20 @@ public partial class ResultsViewModel : INotifyPropertyChanged
     }
   }
 
-  private async Task LoadUiSettingsAsync()
-  {
-    var settings = await UserUiSettingsService.LoadAsync();
+  private async Task LoadUiSettingsAsync() {
+    UserUiSettingsService.UiSettings settings = await UserUiSettingsService.LoadAsync();
     ResultsSplitterPosition = settings.ResultsSplitterPosition;
     DetailsSplitterPosition = settings.DetailsSplitterPosition;
   }
 
-  private async Task SaveUiSettingsAsync()
-  {
-    var settings = await UserUiSettingsService.LoadAsync();
+  private async Task SaveUiSettingsAsync() {
+    UserUiSettingsService.UiSettings settings = await UserUiSettingsService.LoadAsync();
     settings.ResultsSplitterPosition = ResultsSplitterPosition;
     settings.DetailsSplitterPosition = DetailsSplitterPosition;
     await UserUiSettingsService.SaveAsync(settings);
   }
 
-  private void DebounceSave()
-  {
+  private void DebounceSave() {
     pendingSave = true;
     debounceTimer.Stop();
     debounceTimer.Start();

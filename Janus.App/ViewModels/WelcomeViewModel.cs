@@ -12,8 +12,7 @@ using System.Windows.Input;
 
 namespace Janus.App;
 
-public class RecentSnapshotInfo : INotifyPropertyChanged
-{
+public class RecentSnapshotInfo : INotifyPropertyChanged {
   public string FilePath { get; set; } = string.Empty;
   public string? Error { get; set; }
   // Replace tuple with explicit properties for binding
@@ -25,8 +24,7 @@ public class RecentSnapshotInfo : INotifyPropertyChanged
   public void OnPropertyChanged([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }
 
-public class WelcomeViewModel : INotifyPropertyChanged
-{
+public class WelcomeViewModel : INotifyPropertyChanged {
   private readonly Action<object> setCurrentView;
   public ICommand NewScanCommand { get; }
   public ICommand OpenSnapshotCommand { get; }
@@ -44,8 +42,7 @@ public class WelcomeViewModel : INotifyPropertyChanged
   public event PropertyChangedEventHandler? PropertyChanged;
   private void OnPropertyChanged([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
-  public WelcomeViewModel(Action<object> setCurrentView)
-  {
+  public WelcomeViewModel(Action<object> setCurrentView) {
     this.setCurrentView = setCurrentView;
     NewScanCommand = new RelayCommand(_ => StartNewScan());
     OpenSnapshotCommand = new AsyncRelayCommand(OpenSnapshotAsync);
@@ -53,13 +50,9 @@ public class WelcomeViewModel : INotifyPropertyChanged
     _ = LoadRecentSnapshotsAsync();
   }
 
-  private void StartNewScan()
-  {
-    setCurrentView?.Invoke(new LiveScanViewModel(setCurrentView));
-  }
+  private void StartNewScan() => setCurrentView?.Invoke(new LiveScanViewModel(setCurrentView));
 
-  private async Task OpenSnapshotAsync()
-  {
+  private async Task OpenSnapshotAsync() {
     var openFileDialog = new OpenFileDialog {
       Filter = "Janus Snapshot (*.janus)|*.janus",
       DefaultExt = "janus"
@@ -69,17 +62,18 @@ public class WelcomeViewModel : INotifyPropertyChanged
     }
   }
 
-  private async Task OpenRecentSnapshotAsync()
-  {
-    if (SelectedRecentSnapshot == null) return;
+  private async Task OpenRecentSnapshotAsync() {
+    if (SelectedRecentSnapshot == null) {
+      return;
+    }
+
     await OpenSnapshotFileAsync(SelectedRecentSnapshot.FilePath);
   }
 
-  private async Task OpenSnapshotFileAsync(string filePath)
-  {
+  private async Task OpenSnapshotFileAsync(string filePath) {
     var service = new SnapshotService();
     try {
-      var session = await SnapshotService.LoadSnapshotAsync(filePath);
+      ScanSession? session = await SnapshotService.LoadSnapshotAsync(filePath);
       if (session is not null) {
         AddRecentSnapshot(filePath);
         var resultsVm = new ResultsViewModel(setCurrentView, ResultsViewModel.PreviousView.Welcome);
@@ -94,25 +88,28 @@ public class WelcomeViewModel : INotifyPropertyChanged
     }
   }
 
-  private async Task LoadRecentSnapshotsAsync()
-  {
-    var settings = await UserUiSettingsService.LoadAsync();
+  private async Task LoadRecentSnapshotsAsync() {
+    UserUiSettingsService.UiSettings settings = await UserUiSettingsService.LoadAsync();
     RecentSnapshots.Clear();
-    foreach (var path in settings.RecentSnapshots.Distinct().Take(10)) {
-      if (!File.Exists(path)) continue;
+    foreach (string? path in settings.RecentSnapshots.Distinct().Take(10)) {
+      if (!File.Exists(path)) {
+        continue;
+      }
+
       RecentSnapshots.Add(new RecentSnapshotInfo { FilePath = path });
     }
   }
 
-  private async void AddRecentSnapshot(string filePath)
-  {
+  private async void AddRecentSnapshot(string filePath) {
     await UserUiSettingsService.AddRecentSnapshotAsync(filePath);
     await LoadRecentSnapshotsAsync();
   }
 
-  private async void LoadMetadataForSelectedAsync()
-  {
-    if (SelectedRecentSnapshot == null) return;
+  private async void LoadMetadataForSelectedAsync() {
+    if (SelectedRecentSnapshot == null) {
+      return;
+    }
+
     if (!File.Exists(SelectedRecentSnapshot.FilePath)) {
       SelectedRecentSnapshot.Error = "File not found.";
       SelectedRecentSnapshot.MetadataSession = null;
@@ -124,7 +121,7 @@ public class WelcomeViewModel : INotifyPropertyChanged
     }
     var service = new SnapshotService();
     try {
-      var sessioninfo = await SnapshotService.LoadSnapshotMetadataAsync(SelectedRecentSnapshot.FilePath);
+      (ScanSession?, int?) sessioninfo = await SnapshotService.LoadSnapshotMetadataAsync(SelectedRecentSnapshot.FilePath);
       SelectedRecentSnapshot.MetadataSession = sessioninfo.Item1;
       SelectedRecentSnapshot.MetadataEventCount = sessioninfo.Item2;
       SelectedRecentSnapshot.Error = null;

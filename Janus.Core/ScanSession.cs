@@ -1,12 +1,8 @@
 namespace Janus.Core;
-
-using System.Collections.ObjectModel;
-
 /// <summary>
 /// Represents a scan session for event log analysis.
 /// </summary>
-public class ScanSession
-{
+public class ScanSession {
   public required Guid Id { get; init; }
   /// <summary>
   /// The timestamp of interest for the scan.
@@ -35,5 +31,5 @@ public class ScanSession
   /// <summary>
   /// The list of scanned sources for this session.
   /// </summary>
-  public required ICollection<ScannedSource> ScannedSources { get; init; } = new Collection<ScannedSource>();
+  public required ICollection<ScannedSource> ScannedSources { get; init; } = [];
 }

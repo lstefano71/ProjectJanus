@@ -7,8 +7,7 @@ using System.Windows.Input;
 
 namespace Janus.App;
 
-public class LiveScanViewModel : INotifyPropertyChanged
-{
+public class LiveScanViewModel : INotifyPropertyChanged {
   private readonly Action<object>? setCurrentView;
   private readonly UserUiSettingsService uiSettingsService = UserUiSettingsService.Instance;
   private DateTime timestamp = DateTime.Now;
@@ -27,7 +26,7 @@ public class LiveScanViewModel : INotifyPropertyChanged
   private int sourcesInProgress;
   private int totalEvents;
 
-  private System.Collections.ObjectModel.ObservableCollection<SourceScanProgress> scannedSources = new();
+  private System.Collections.ObjectModel.ObservableCollection<SourceScanProgress> scannedSources = [];
   public System.Collections.ObjectModel.ObservableCollection<SourceScanProgress> ScannedSources {
     get => scannedSources;
     set {
@@ -64,8 +63,7 @@ public class LiveScanViewModel : INotifyPropertyChanged
     private set { totalEvents = value; OnPropertyChanged(); }
   }
 
-  private void ResetStats()
-  {
+  private void ResetStats() {
     TotalSources = 0;
     SourcesCompletedSuccess = 0;
     SourcesCompletedError = 0;
@@ -120,8 +118,7 @@ public class LiveScanViewModel : INotifyPropertyChanged
   public ICommand SetNowCommand { get; }
   public ICommand BackCommand { get; }
 
-  public LiveScanViewModel(Action<object>? setCurrentView = null)
-  {
+  public LiveScanViewModel(Action<object>? setCurrentView = null) {
     this.setCurrentView = setCurrentView;
     ScanCommand = new AsyncRelayCommand(ScanAsync, () => cts is null);
     CancelCommand = new RelayCommand(_ => CancelScan(), _ => cts is not null);
@@ -130,60 +127,53 @@ public class LiveScanViewModel : INotifyPropertyChanged
     _ = LoadUiSettingsAsync();
   }
 
-  private void GoBack()
-  {
-    setCurrentView?.Invoke(new WelcomeViewModel(setCurrentView!));
-  }
+  private void GoBack() => setCurrentView?.Invoke(new WelcomeViewModel(setCurrentView!));
 
-  private async Task LoadUiSettingsAsync()
-  {
-    var settings = await UserUiSettingsService.LoadAsync();
+  private async Task LoadUiSettingsAsync() {
+    UserUiSettingsService.UiSettings settings = await UserUiSettingsService.LoadAsync();
     MinutesBefore = settings.MinutesBefore;
     MinutesAfter = settings.MinutesAfter;
   }
 
-  private async Task SaveUiSettingsAsync()
-  {
-    var settings = await UserUiSettingsService.LoadAsync();
+  private async Task SaveUiSettingsAsync() {
+    UserUiSettingsService.UiSettings settings = await UserUiSettingsService.LoadAsync();
     settings.MinutesBefore = MinutesBefore;
     settings.MinutesAfter = MinutesAfter;
     await UserUiSettingsService.SaveAsync(settings);
   }
 
-  private void SetNow()
-  {
+  private void SetNow() {
     Timestamp = DateTime.Now;
     TimeOfDay = DateTime.Now.ToString("HH:mm:ss");
   }
 
-  private async Task ScanAsync()
-  {
+  private async Task ScanAsync() {
     cts = new CancellationTokenSource();
     IsScanInProgress = true;
     ScanStatus = "Scanning...";
     ScannedSources.Clear();
 
-    var scanTimestamp = DateTime.SpecifyKind(Timestamp.Date.Add(TimeSpan.Parse(TimeOfDay)), DateTimeKind.Local).ToUniversalTime();
+    DateTime scanTimestamp = DateTime.SpecifyKind(Timestamp.Date.Add(TimeSpan.Parse(TimeOfDay)), DateTimeKind.Local).ToUniversalTime();
     var before = TimeSpan.FromMinutes(MinutesBefore);
     var after = TimeSpan.FromMinutes(MinutesAfter);
 
-    var dispatcher = System.Windows.Application.Current?.Dispatcher;
+    System.Windows.Threading.Dispatcher? dispatcher = System.Windows.Application.Current?.Dispatcher;
 
     ResetStats();
     var progress = new Progress<SourceScanProgress>(progressUpdate => {
-      void update()
-      {
-        var existing = ScannedSources.FirstOrDefault(s => s.SourceName == progressUpdate.SourceName);
+      void update() {
+        SourceScanProgress? existing = ScannedSources.FirstOrDefault(s => s.SourceName == progressUpdate.SourceName);
         if (existing == null) {
           ScannedSources.Insert(0, progressUpdate);
           TotalSources++;
           if (progressUpdate.IsActive) {
             SourcesInProgress++;
           } else {
-            if (progressUpdate.Status == Core.ScanStatus.Success)
+            if (progressUpdate.Status == Core.ScanStatus.Success) {
               SourcesCompletedSuccess++;
-            else if (progressUpdate.Status == Core.ScanStatus.Failed)
+            } else if (progressUpdate.Status == Core.ScanStatus.Failed) {
               SourcesCompletedError++;
+            }
           }
         } else {
           // Track event count delta
@@ -192,7 +182,7 @@ public class LiveScanViewModel : INotifyPropertyChanged
           TotalEvents += (progressUpdate.EventsRetrieved - prevEvents);
 
           bool wasActive = existing.IsActive;
-          var prevStatus = existing.Status;
+          ScanStatus prevStatus = existing.Status;
 
           existing.Status = progressUpdate.Status;
           existing.IsTotalKnown = progressUpdate.IsTotalKnown;
@@ -210,10 +200,11 @@ public class LiveScanViewModel : INotifyPropertyChanged
           // Transition from active to not active
           if (wasActive && !progressUpdate.IsActive) {
             SourcesInProgress--;
-            if (progressUpdate.Status == Core.ScanStatus.Success)
+            if (progressUpdate.Status == Core.ScanStatus.Success) {
               SourcesCompletedSuccess++;
-            else if (progressUpdate.Status == Core.ScanStatus.Failed)
+            } else if (progressUpdate.Status == Core.ScanStatus.Failed) {
               SourcesCompletedError++;
+            }
           }
         }
         // Move most recently active to top
@@ -223,14 +214,15 @@ public class LiveScanViewModel : INotifyPropertyChanged
         // Update ScanStatus with statistics
         ScanStatus = $"Sources: {TotalSources}/Success: {SourcesCompletedSuccess}/Errors: {SourcesCompletedError}/In Progress: {SourcesInProgress} | Events: {TotalEvents}";
       }
-      if (dispatcher != null && !dispatcher.CheckAccess())
+      if (dispatcher != null && !dispatcher.CheckAccess()) {
         dispatcher.Invoke(update);
-      else
+      } else {
         update();
+      }
     });
 
     try {
-      var scanResult = await EventLogScannerService.ScanAllLogsAsync(scanTimestamp, before, after, progress, cts.Token);
+      ScanResult scanResult = await EventLogScannerService.ScanAllLogsAsync(scanTimestamp, before, after, progress, cts.Token);
       ScanStatus = "Scan complete";
       // NAVIGATE TO RESULTS VIEW
       if (setCurrentView != null) {
@@ -252,7 +244,7 @@ public class LiveScanViewModel : INotifyPropertyChanged
     } catch (OperationCanceledException) {
       ScanStatus = "Scan cancelled";
     } catch (Exception ex) {
-      var details = $"Scan failed: {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}";
+      string details = $"Scan failed: {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}";
       ScanStatus = details;
     } finally {
       cts = null;
@@ -260,10 +252,7 @@ public class LiveScanViewModel : INotifyPropertyChanged
     }
   }
 
-  private void CancelScan()
-  {
-    cts?.Cancel();
-  }
+  private void CancelScan() => cts?.Cancel();
 
   public event PropertyChangedEventHandler? PropertyChanged;
   private void OnPropertyChanged([CallerMemberName] string? name = null)

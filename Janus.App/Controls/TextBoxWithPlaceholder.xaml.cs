@@ -4,8 +4,7 @@ using System.Windows.Input;
 
 namespace Janus.App.Controls;
 
-public partial class TextBoxWithPlaceholder : UserControl
-{
+public partial class TextBoxWithPlaceholder : UserControl {
   public static readonly DependencyProperty TextProperty = DependencyProperty.Register(
       nameof(Text), typeof(string), typeof(TextBoxWithPlaceholder),
       new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnTextChanged));
@@ -23,14 +22,12 @@ public partial class TextBoxWithPlaceholder : UserControl
     set => SetValue(PlaceholderProperty, value);
   }
 
-  public TextBoxWithPlaceholder()
-  {
+  public TextBoxWithPlaceholder() {
     InitializeComponent();
     Loaded += OnLoaded;
   }
 
-  private void OnLoaded(object sender, RoutedEventArgs e)
-  {
+  private void OnLoaded(object sender, RoutedEventArgs e) {
     UpdatePlaceholderVisibility();
     PART_TextBox.TextChanged += (s, _) => UpdatePlaceholderVisibility();
     PART_TextBox.GotFocus += (s, _) => UpdatePlaceholderVisibility();
@@ -39,27 +36,23 @@ public partial class TextBoxWithPlaceholder : UserControl
     PART_TextBox.KeyDown += PART_TextBox_KeyDown;
   }
 
-  private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-  {
-    if (d is TextBoxWithPlaceholder ctrl)
+  private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+    if (d is TextBoxWithPlaceholder ctrl) {
       ctrl.UpdatePlaceholderVisibility();
+    }
   }
 
-  private void UpdatePlaceholderVisibility()
-  {
-    if (string.IsNullOrEmpty(PART_TextBox.Text) && !PART_TextBox.IsKeyboardFocusWithin)
+  private void UpdatePlaceholderVisibility() {
+    if (string.IsNullOrEmpty(PART_TextBox.Text) && !PART_TextBox.IsKeyboardFocusWithin) {
       PART_Placeholder.Visibility = Visibility.Visible;
-    else
+    } else {
       PART_Placeholder.Visibility = Visibility.Collapsed;
+    }
   }
 
-  private void PART_TextBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
-  {
-    PART_TextBox.SelectAll();
-  }
+  private void PART_TextBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) => PART_TextBox.SelectAll();
 
-  private void PART_TextBox_KeyDown(object sender, KeyEventArgs e)
-  {
+  private void PART_TextBox_KeyDown(object sender, KeyEventArgs e) {
     // Optionally, raise an event or handle Enter key, etc.
   }
 }

@@ -6,8 +6,7 @@ using System.Windows.Input;
 
 namespace Janus.App;
 
-public partial class NumericUpDown : UserControl, INotifyPropertyChanged
-{
+public partial class NumericUpDown : UserControl, INotifyPropertyChanged {
   public static readonly DependencyProperty ValueProperty =
     DependencyProperty.Register(
       nameof(Value),
@@ -23,22 +22,20 @@ public partial class NumericUpDown : UserControl, INotifyPropertyChanged
   public ICommand IncrementCommand { get; }
   public ICommand DecrementCommand { get; }
 
-  public NumericUpDown()
-  {
+  public NumericUpDown() {
     InitializeComponent();
     DataContext = this;
     IncrementCommand = new RelayCommand(_ => Value++);
     DecrementCommand = new RelayCommand(_ => Value--);
   }
 
-  private void ValueBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
-  {
-    if (sender is TextBox tb)
+  private void ValueBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) {
+    if (sender is TextBox tb) {
       tb.SelectAll();
+    }
   }
 
-  private void ValueBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-  {
+  private void ValueBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
     if (sender is TextBox tb && !tb.IsKeyboardFocusWithin) {
       e.Handled = true;
       tb.Focus();
