@@ -10,5 +10,25 @@
         <SolidColorBrush x:Key="ControlBackgroundBrush" Color="White"/>
         <SolidColorBrush x:Key="ControlBorderBrush" Color="#CCC"/>
         <SolidColorBrush x:Key="ControlForegroundBrush" Color="Black"/>
+        <!-- Janus vector logo for reuse -->
+        <ControlTemplate x:Key="JanusLogoIcon" TargetType="Control">
+          <Viewbox>
+            <Canvas Width="256" Height="256">
+              <Ellipse Canvas.Left="8" Canvas.Top="8" Width="240" Height="240" Fill="#f5f5f5" Stroke="#222222" StrokeThickness="8"/>
+              <Path Data="M64 128c0-35 29-64 64-64s64 29 64 64-29 64-64 64-64-29-64-64z" Fill="#FFFFFF" Stroke="#222222" StrokeThickness="6"/>
+              <Path Data="M88 128c0-22 18-40 40-40s40 18 40 40-18 40-40 40-40-18-40-40z" Fill="#e0e0e0" Stroke="#222222" StrokeThickness="4"/>
+              <Path Data="M128 128 L 128 88" Stroke="#222222" StrokeThickness="6" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+              <Path Data="M128 128 L 156 140" Stroke="#222222" StrokeThickness="6" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+              <Path Data="M56 128c0-40 32-72 72-72" Stroke="#888888" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+              <Path Data="M200 128c0-40-32-72-72-72" Stroke="#888888" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+              <Ellipse Canvas.Left="62" Canvas.Top="88" Width="20" Height="32" Fill="#FFFFFF" Stroke="#222222" StrokeThickness="3"/>
+              <Ellipse Canvas.Left="174" Canvas.Top="88" Width="20" Height="32" Fill="#FFFFFF" Stroke="#222222" StrokeThickness="3"/>
+              <Ellipse Canvas.Left="69" Canvas.Top="105" Width="6" Height="6" Fill="#222222"/>
+              <Ellipse Canvas.Left="181" Canvas.Top="105" Width="6" Height="6" Fill="#222222"/>
+              <Path Data="M60 144c4 8 12 16 24 16" Stroke="#222222" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+              <Path Data="M196 144c-4 8-12 16-24 16" Stroke="#222222" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+            </Canvas>
+          </Viewbox>
+        </ControlTemplate>
     </Application.Resources>
 </Application>
