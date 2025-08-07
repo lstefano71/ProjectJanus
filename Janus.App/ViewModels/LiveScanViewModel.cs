@@ -19,6 +19,20 @@ public class LiveScanViewModel : INotifyPropertyChanged
   private CancellationTokenSource? cts;
 
   private bool isScanInProgress;
+
+  private System.Collections.ObjectModel.ObservableCollection<SourceScanProgress> scannedSources = new();
+  public System.Collections.ObjectModel.ObservableCollection<SourceScanProgress> ScannedSources
+  {
+    get => scannedSources;
+    set
+    {
+      if (scannedSources != value)
+      {
+        scannedSources = value;
+        OnPropertyChanged();
+      }
+    }
+  }
   public DateTime Timestamp {
     get => timestamp;
     set { timestamp = value; OnPropertyChanged(); }
@@ -108,21 +122,60 @@ public class LiveScanViewModel : INotifyPropertyChanged
     cts = new CancellationTokenSource();
     IsScanInProgress = true;
     ScanStatus = "Scanning...";
-    var service = new EventLogScannerService();
+    ScannedSources.Clear();
+
     var scanTimestamp = DateTime.SpecifyKind(Timestamp.Date.Add(TimeSpan.Parse(TimeOfDay)), DateTimeKind.Local).ToUniversalTime();
     var before = TimeSpan.FromMinutes(MinutesBefore);
     var after = TimeSpan.FromMinutes(MinutesAfter);
-    var progress = new Progress<(string status, int count)>(tuple => {
-      ScanStatus = tuple.status;
+
+    var dispatcher = System.Windows.Application.Current?.Dispatcher;
+
+    var progress = new Progress<SourceScanProgress>(progressUpdate =>
+    {
+      void update()
+      {
+        var existing = ScannedSources.FirstOrDefault(s => s.SourceName == progressUpdate.SourceName);
+        if (existing == null)
+        {
+          ScannedSources.Insert(0, progressUpdate);
+        }
+        else
+        {
+          existing.EventsRetrieved = progressUpdate.EventsRetrieved;
+          existing.Status = progressUpdate.Status;
+          existing.IsTotalKnown = progressUpdate.IsTotalKnown;
+          existing.TotalEvents = progressUpdate.TotalEvents;
+          existing.IsActive = progressUpdate.IsActive;
+          // Notify property changed for all properties
+          existing.OnPropertyChanged(nameof(existing.EventsRetrieved));
+          existing.OnPropertyChanged(nameof(existing.Status));
+          existing.OnPropertyChanged(nameof(existing.IsTotalKnown));
+          existing.OnPropertyChanged(nameof(existing.TotalEvents));
+          existing.OnPropertyChanged(nameof(existing.IsActive));
+        }
+        // Move most recently active to top
+        if (progressUpdate.IsActive && existing != null)
+        {
+          ScannedSources.Move(ScannedSources.IndexOf(existing), 0);
+        }
+      }
+      if (dispatcher != null && !dispatcher.CheckAccess())
+        dispatcher.Invoke(update);
+      else
+        update();
     });
-    try {
+
+    try
+    {
       var scanResult = await EventLogScannerService.ScanAllLogsAsync(scanTimestamp, before, after, progress, cts.Token);
       ScanStatus = "Scan complete";
       // NAVIGATE TO RESULTS VIEW
-      if (setCurrentView != null) {
+      if (setCurrentView != null)
+      {
         var resultsVm = new ResultsViewModel(setCurrentView, ResultsViewModel.PreviousView.LiveScan);
         resultsVm.LoadEvents(scanResult.Entries);
-        resultsVm.SetMetadata(new ScanSession {
+        resultsVm.SetMetadata(new ScanSession
+        {
           Id = Guid.NewGuid(),
           Timestamp = scanTimestamp,
           MinutesBefore = MinutesBefore,
@@ -135,12 +188,18 @@ public class LiveScanViewModel : INotifyPropertyChanged
         });
         setCurrentView(new ResultsView { DataContext = resultsVm });
       }
-    } catch (OperationCanceledException) {
+    }
+    catch (OperationCanceledException)
+    {
       ScanStatus = "Scan cancelled";
-    } catch (Exception ex) {
+    }
+    catch (Exception ex)
+    {
       var details = $"Scan failed: {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}";
       ScanStatus = details;
-    } finally {
+    }
+    finally
+    {
       cts = null;
       IsScanInProgress = false;
     }

@@ -34,7 +34,7 @@ public class EventLogScannerService
       DateTime timestamp,
       TimeSpan before,
       TimeSpan after,
-      IProgress<(string status, int eventCount)>? progress,
+      IProgress<Janus.App.SourceScanProgress>? perSourceProgress,
       CancellationToken cancellationToken)
   {
     var session = EventLogSession.GlobalSession;
@@ -51,11 +51,13 @@ public class EventLogScannerService
       tasks.Add(Task.Run(() => {
         int sourceEventCount = 0;
         ScanStatus status = ScanStatus.Success;
+        bool isTotalKnown = false;
+        int? totalEvents = null;
         try {
           cancellationToken.ThrowIfCancellationRequested();
           var xpath = $"*[System[TimeCreated[@SystemTime>='{from:O}' and @SystemTime<='{to:O}']]]";
-          progress?.Report(($"Scanning: {logName} | Query: {xpath}", eventCount));
           using var reader = new EventLogReader(new EventLogQuery(logName, PathType.LogName, xpath));
+          // No way to know total events in advance, so isTotalKnown = false
           for (EventRecord? record = reader.ReadEvent(); record is not null; record = reader.ReadEvent()) {
             cancellationToken.ThrowIfCancellationRequested();
             var entry = new EventLogEntry {
@@ -75,16 +77,49 @@ public class EventLogScannerService
               sourceEventCount++;
               Interlocked.Increment(ref eventCount);
             }
-            progress?.Report(($"Scanning: {logName} | {eventCount} events", eventCount));
+            perSourceProgress?.Report(new Janus.App.SourceScanProgress {
+              SourceName = logName,
+              EventsRetrieved = sourceEventCount,
+              Status = status,
+              IsTotalKnown = isTotalKnown,
+              TotalEvents = totalEvents,
+              IsActive = true,
+              ExceptionMessage = null
+            });
           }
         } catch (EventLogException ex) {
           status = ScanStatus.Failed;
-          progress?.Report(($"Error scanning {logName}: {ex.Message}", eventCount));
+          perSourceProgress?.Report(new Janus.App.SourceScanProgress {
+            SourceName = logName,
+            EventsRetrieved = sourceEventCount,
+            Status = status,
+            IsTotalKnown = isTotalKnown,
+            TotalEvents = totalEvents,
+            IsActive = false,
+            ExceptionMessage = ex.Message
+          });
         } catch (UnauthorizedAccessException ex) {
           status = ScanStatus.Failed;
-          progress?.Report(($"Access denied to {logName}: {ex.Message}", eventCount));
+          perSourceProgress?.Report(new Janus.App.SourceScanProgress {
+            SourceName = logName,
+            EventsRetrieved = sourceEventCount,
+            Status = status,
+            IsTotalKnown = isTotalKnown,
+            TotalEvents = totalEvents,
+            IsActive = false,
+            ExceptionMessage = ex.Message
+          });
         } catch (OperationCanceledException) {
           status = ScanStatus.Partial;
+          perSourceProgress?.Report(new Janus.App.SourceScanProgress {
+            SourceName = logName,
+            EventsRetrieved = sourceEventCount,
+            Status = status,
+            IsTotalKnown = isTotalKnown,
+            TotalEvents = totalEvents,
+            IsActive = false,
+            ExceptionMessage = null
+          });
         }
         lock (scannedSources) {
           scannedSources.Add(new ScannedSource {
@@ -93,10 +128,19 @@ public class EventLogScannerService
             Status = status
           });
         }
+        // Final update for this source
+        perSourceProgress?.Report(new Janus.App.SourceScanProgress {
+          SourceName = logName,
+          EventsRetrieved = sourceEventCount,
+          Status = status,
+          IsTotalKnown = isTotalKnown,
+          TotalEvents = totalEvents,
+          IsActive = false,
+          ExceptionMessage = status == ScanStatus.Failed ? "Scan failed" : null
+        });
       }, cancellationToken));
     }
     await Task.WhenAll(tasks);
-    progress?.Report(("Scan complete", eventCount));
     return new ScanResult {
       Entries = entries,
       ScannedSources = scannedSources
