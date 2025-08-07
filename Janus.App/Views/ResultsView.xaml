@@ -50,41 +50,48 @@
         </TextBlock>
       </Expander.Header>
     </Expander>
-    <!-- Metadata Panel Content: Use Grid for proper layout and scrolling -->
+    <!-- Metadata Panel Content: Grouped and compact layout, with compacted rows and notes at the bottom -->
     <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" Margin="0,0,20,0">
       <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/> <!-- Machine label -->
-        <RowDefinition Height="Auto"/> <!-- Machine value -->
-        <RowDefinition Height="Auto"/> <!-- Notes label -->
-        <RowDefinition Height="Auto"/> <!-- Notes value -->
-        <RowDefinition Height="Auto"/> <!-- Scan Timestamp label -->
-        <RowDefinition Height="Auto"/> <!-- Scan Timestamp value -->
-        <RowDefinition Height="Auto"/> <!-- Window label -->
-        <RowDefinition Height="Auto"/> <!-- Window value -->
-        <RowDefinition Height="Auto"/> <!-- Snapshot Created label -->
-        <RowDefinition Height="Auto"/> <!-- Snapshot Created value -->
-        <RowDefinition Height="Auto"/> <!-- Minutes Before label -->
-        <RowDefinition Height="Auto"/> <!-- Minutes Before value -->
-        <RowDefinition Height="Auto"/> <!-- Minutes After label -->
-        <RowDefinition Height="Auto"/> <!-- Minutes After value -->
+        <RowDefinition Height="Auto"/> <!-- Metadata group -->
         <RowDefinition Height="*"/>   <!-- ScannedSources list -->
+        <RowDefinition Height="Auto"/> <!-- Notes -->
       </Grid.RowDefinitions>
-      <TextBlock Text="Machine:" FontWeight="Bold" Margin="0,8,0,0" Grid.Row="0"/>
-      <TextBlock Text="{Binding Metadata.MachineName}" Margin="0,0,0,8" Grid.Row="1"/>
-      <TextBlock Text="Notes:" FontWeight="Bold" Grid.Row="2"/>
-      <TextBlock Text="{Binding Metadata.UserNotes}" Margin="0,0,0,8" Grid.Row="3"/>
-      <TextBlock Text="Scan Timestamp:" FontWeight="Bold" Grid.Row="4"/>
-      <TextBlock Text="{Binding MetadataTimestampLocal}" Margin="0,0,0,8" Grid.Row="5"/>
-      <TextBlock Text="Window:" FontWeight="Bold" Grid.Row="6"/>
-      <TextBlock Text="{Binding Metadata.Window}" Margin="0,0,0,8" Grid.Row="7"/>
-      <TextBlock Text="Snapshot Created:" FontWeight="Bold" Grid.Row="8"/>
-      <TextBlock Text="{Binding MetadataSnapshotCreatedLocal}" Margin="0,0,0,8" Grid.Row="9"/>
-      <TextBlock Text="Minutes Before:" FontWeight="Bold" Grid.Row="10"/>
-      <TextBlock Text="{Binding Metadata.MinutesBefore}" Margin="0,0,0,8" Grid.Row="11"/>
-      <TextBlock Text="Minutes After:" FontWeight="Bold" Grid.Row="12"/>
-      <TextBlock Text="{Binding Metadata.MinutesAfter}" Margin="0,0,0,8" Grid.Row="13"/>
+      <!-- Grouped metadata fields: single column, label and value in one TextBlock, wrapping enabled -->
+      <GroupBox Header="Details" Grid.Row="0" Padding="8" Margin="0,0,0,8">
+        <StackPanel>
+          <TextBlock TextWrapping="Wrap">
+            <Run Text="Machine: " FontWeight="Bold"/>
+            <Run Text="{Binding Metadata.MachineName, Mode=OneWay}"/>
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap">
+            <Run Text="Window: " FontWeight="Bold"/>
+            <Run Text="{Binding Metadata.Window, Mode=OneWay}"/>
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap">
+            <Run Text="Scan Timestamp: " FontWeight="Bold"/>
+            <Run Text="{Binding MetadataTimestampLocal, Mode=OneWay}"/>
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap">
+            <Run Text="Snapshot Created: " FontWeight="Bold"/>
+            <Run Text="{Binding MetadataSnapshotCreatedLocal, Mode=OneWay}"/>
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap">
+            <Run Text="Minutes Before: " FontWeight="Bold"/>
+            <Run Text="{Binding Metadata.MinutesBefore, Mode=OneWay}"/>
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap">
+            <Run Text="Minutes After: " FontWeight="Bold"/>
+            <Run Text="{Binding Metadata.MinutesAfter, Mode=OneWay}"/>
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap" Visibility="{Binding SnapshotFilePath, Converter={StaticResource StringNotEmptyToVisible}}">
+            <Run Text="Snapshot Path: " FontWeight="Bold"/>
+            <Run Text="{Binding ContractedSnapshotFilePath, Mode=OneWay}"/>
+          </TextBlock>
+        </StackPanel>
+      </GroupBox>
       <!-- ScannedSources List: fills remaining space, scrollable -->
-      <ScrollViewer Grid.Row="14" VerticalScrollBarVisibility="Auto">
+      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
         <ItemsControl ItemsSource="{Binding ScannedSources}">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
@@ -147,6 +154,13 @@
           </ItemsControl.ItemTemplate>
         </ItemsControl>
       </ScrollViewer>
+      <!-- Notes at the bottom with a darker background -->
+      <Border Grid.Row="2" Background="#FFE8E8E8" CornerRadius="4" Padding="6" Margin="0,8,0,0">
+        <StackPanel>
+          <TextBlock Text="Notes:" FontWeight="Bold"/>
+          <TextBlock Text="{Binding Metadata.UserNotes}" TextWrapping="Wrap"/>
+        </StackPanel>
+      </Border>
     </Grid>
     <!-- Scanned Sources Grid -->
     <!-- Filters and Status -->

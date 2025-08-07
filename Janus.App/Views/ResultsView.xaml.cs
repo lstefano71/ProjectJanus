@@ -1,4 +1,5 @@
 using Janus.App.Services;
+using Janus.App.Utils;
 
 using System.Windows;
 using System.Windows.Controls;
@@ -50,4 +51,8 @@ public partial class ResultsView : UserControl
       }
     }
   }
+
+  // Utility to get contracted snapshot path for display
+  public static string GetContractedSnapshotPath(string? path)
+    => string.IsNullOrEmpty(path) ? string.Empty : EnvVarContractor.ContractPath(path);
 }

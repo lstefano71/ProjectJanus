@@ -2,6 +2,7 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using Janus.App.Services;
 using Janus.Core;
+using Janus.App.Utils;
 
 using Microsoft.Win32;
 
@@ -435,9 +436,27 @@ public partial class ResultsViewModel : INotifyPropertyChanged
       Clipboard.SetText(SelectedEvent.Message ?? string.Empty);
   }
 
-  public void SetMetadata(ScanSession session)
+  private string? snapshotFilePath;
+  public string? SnapshotFilePath {
+    get => snapshotFilePath;
+    set {
+      if (snapshotFilePath != value) {
+        snapshotFilePath = value;
+        OnPropertyChanged();
+        OnPropertyChanged(nameof(ContractedSnapshotFilePath));
+      }
+    }
+  }
+
+  // Expose contracted path for UI binding
+  public string? ContractedSnapshotFilePath =>
+    string.IsNullOrEmpty(SnapshotFilePath) ? string.Empty : ResultsView.GetContractedSnapshotPath(SnapshotFilePath);
+
+  public void SetMetadata(ScanSession session, string? filePath = null)
   {
     Metadata = session;
+    if (filePath != null)
+      SnapshotFilePath = filePath;
     OnPropertyChanged(nameof(Metadata));
     OnPropertyChanged(nameof(MetadataTimestampLocal));
     OnPropertyChanged(nameof(MetadataSnapshotCreatedLocal));
@@ -488,7 +507,8 @@ public partial class ResultsViewModel : INotifyPropertyChanged
         MessageBox.Show($"Snapshot saved successfully at: {filePath}.",
           "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
-        SetMetadata(updatedSession);
+        SetMetadata(updatedSession, filePath);
+        SnapshotFilePath = filePath;
         CanSaveSnapshot = false;
       }
     }

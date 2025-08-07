@@ -84,7 +84,7 @@ public class WelcomeViewModel : INotifyPropertyChanged
         AddRecentSnapshot(filePath);
         var resultsVm = new ResultsViewModel(setCurrentView, ResultsViewModel.PreviousView.Welcome);
         resultsVm.LoadEvents(session.Entries);
-        resultsVm.SetMetadata(session);
+        resultsVm.SetMetadata(session, filePath); // Pass filePath so the path is shown in the panel
         setCurrentView?.Invoke(new ResultsView { DataContext = resultsVm });
       } else {
         MessageBox.Show("No snapshot data found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
