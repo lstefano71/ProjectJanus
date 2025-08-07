@@ -21,42 +21,73 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Border x:Name="border"
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="3"
-                        SnapsToDevicePixels="True">
+            <!-- Essential: Allows the glow to render outside the button's bounds. -->
+            <Grid ClipToBounds="False">
 
-              <Border.Effect>
-                <DropShadowEffect x:Name="GlowEffect"
-                                          Color="#d319f7"
-                                          ShadowDepth="1.5"
-                                          BlurRadius="10"
-                                          Opacity="1"
-                                          Direction="0"/>
-              </Border.Effect>
+              <!-- LAYER 1: The Light Source. -->
+              <Canvas>
+                <!-- The glint element. Its Canvas.Left and Canvas.Top are animated. -->
+                <Rectangle x:Name="Glint" Width="50" Height="12" Fill="#C879FF">
+                  <Rectangle.Effect>
+                    <BlurEffect Radius="12"/>
+                  </Rectangle.Effect>
+                </Rectangle>
+              </Canvas>
 
-              <ContentPresenter x:Name="contentPresenter"
-                                      Focusable="False"
-                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                      Margin="{TemplateBinding Padding}"
-                                      RecognizesAccessKey="True"
-                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-            </Border>
+              <!-- LAYER 2: The Button Chrome, which acts as a mask -->
+              <Border x:Name="buttonChrome"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="3"
+                            SnapsToDevicePixels="True">
+                <ContentPresenter x:Name="contentPresenter"
+                                          Focusable="False"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          Margin="{TemplateBinding Padding}"
+                                          RecognizesAccessKey="True"
+                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+              </Border>
+            </Grid>
 
             <ControlTemplate.Triggers>
-              <!-- This trigger correctly starts and stops the animation. -->
+              <!-- This robust trigger starts and stops the animation -->
               <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Self}}" Value="True">
                 <DataTrigger.EnterActions>
                   <BeginStoryboard Name="GlowAnimation">
-                    <Storyboard RepeatBehavior="Forever">
-                      <DoubleAnimation Storyboard.TargetName="GlowEffect"
-                                                     Storyboard.TargetProperty="Direction"
-                                                     From="0"
-                                                     To="360"
-                                                     Duration="0:0:59"/>
+                    <Storyboard RepeatBehavior="Forever" Duration="0:0:4" SpeedRatio="0.25" >
+
+                      <!-- THE DEFINITIVE FIX: Keyframes now create "hold" periods to force a rectangular path. -->
+
+                      <!-- Animate the Horizontal (X) position -->
+                      <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Glint" Storyboard.TargetProperty="(Canvas.Left)">
+                        <!-- Start on left edge, centered vertically -->
+                        <LinearDoubleKeyFrame KeyTime="0:0:0" Value="-2"/>
+                        <!-- Move across top edge -->
+                        <LinearDoubleKeyFrame KeyTime="0:0:1" Value="155"/>
+                        <!-- Hold on right edge -->
+                        <LinearDoubleKeyFrame KeyTime="0:0:2" Value="155"/>
+                        <!-- Move across bottom edge -->
+                        <LinearDoubleKeyFrame KeyTime="0:0:3" Value="-2"/>
+                        <!-- Hold on left edge to complete loop -->
+                        <LinearDoubleKeyFrame KeyTime="0:0:4" Value="-2"/>
+                      </DoubleAnimationUsingKeyFrames>
+
+                      <!-- Animate the Vertical (Y) position -->
+                      <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Glint" Storyboard.TargetProperty="(Canvas.Top)">
+                        <!-- Start on top edge -->
+                        <LinearDoubleKeyFrame KeyTime="0:0:0" Value="-3"/>
+                        <!-- Hold on top edge -->
+                        <LinearDoubleKeyFrame KeyTime="0:0:1" Value="-3"/>
+                        <!-- Move down right edge -->
+                        <LinearDoubleKeyFrame KeyTime="0:0:2" Value="35"/>
+                        <!-- Hold on bottom edge -->
+                        <LinearDoubleKeyFrame KeyTime="0:0:3" Value="35"/>
+                        <!-- Move up left edge to complete loop -->
+                        <LinearDoubleKeyFrame KeyTime="0:0:4" Value="-3"/>
+                      </DoubleAnimationUsingKeyFrames>
+
                     </Storyboard>
                   </BeginStoryboard>
                 </DataTrigger.EnterActions>
@@ -69,15 +100,13 @@
         </Setter.Value>
       </Setter>
 
-      <!-- Style triggers for visual state changes -->
+      <!-- Visual state triggers for mouse interaction -->
       <Style.Triggers>
         <Trigger Property="IsMouseOver" Value="True">
           <Setter Property="Background" Value="#e9eef3"/>
-          <Setter Property="BorderBrush" Value="#a0a4a8"/>
         </Trigger>
         <Trigger Property="IsPressed" Value="True">
           <Setter Property="Background" Value="#dfe4e8"/>
-          <Setter Property="BorderBrush" Value="#808488"/>
         </Trigger>
         <Trigger Property="IsEnabled" Value="False">
           <Setter Property="Opacity" Value="0.7"/>
