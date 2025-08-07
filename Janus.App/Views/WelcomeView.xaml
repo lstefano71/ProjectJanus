@@ -196,6 +196,7 @@
         <TextBlock Text="🕵️‍♂️ Analyze Windows system events around a critical timestamp." FontSize="13" Foreground="#445" TextWrapping="Wrap" Margin="0,0,0,6"/>
         <TextBlock Text="⚡ Scans are quick, safe, and non-committal—no changes are made to your system." FontSize="13" Foreground="#445" TextWrapping="Wrap" Margin="0,0,0,6"/>
         <TextBlock Text="🚀 Get started: run a new scan or open a snapshot. Snapshots are portable and can be shared for offline analysis." FontSize="13" Foreground="#445" TextWrapping="Wrap"/>
+        <TextBlock Text="For an easter egg, take a look at the About dialog!" FontSize="13" Foreground="#445" TextWrapping="Wrap"/>
       </StackPanel>
     </DockPanel>
 

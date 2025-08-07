@@ -34,7 +34,16 @@
                     <Hyperlink NavigateUri="https://github.com/lstefano71/ProjectJanus/blob/main/docs/prd/ProjectJanus.md" RequestNavigate="OnLinkClick">Docs</Hyperlink>
         </TextBlock>
       </StackPanel>
-      <TextBlock Text="Copyright © 2025 WildHeart Productions" Margin="0,0,0,10"/>
+      <TextBlock x:Name="CopyrightText" Text="Copyright © 2025 WildHeart Productions" Margin="0,0,0,10"
+                 RenderTransformOrigin="0.5,0.5">
+          <TextBlock.RenderTransform>
+              <TransformGroup>
+                  <ScaleTransform/>
+                  <RotateTransform/>
+                  <TranslateTransform/>
+              </TransformGroup>
+          </TextBlock.RenderTransform>
+      </TextBlock>
       <Button Content="OK" Width="80" HorizontalAlignment="Right" Click="OnOkClick" IsDefault="True" IsCancel="True" TabIndex="1"/>
     </StackPanel>
   </Grid>
