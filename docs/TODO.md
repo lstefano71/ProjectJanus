@@ -59,17 +59,6 @@
 -   [ ] **5.8:** Add a read-only metadata display area to the `ResultsView` (for machine name, notes, etc.), visible only when viewing a snapshot.
 -   [x] **5.9:** Add scanned sources metadata to snapshots and display as a grid in ResultsView details pane (FR-02).
 
-### Phase 7: Enhanced Scan Progress UI (FR-03)
-
-- [ ] **7.1:** Define a per-source progress model (source name, event count, status, progress, icon).
-- [ ] **7.2:** Refactor `EventLogScannerService` to report per-source progress updates, supporting configurable update frequency.
-- [ ] **7.3:** Update `LiveScanViewModel` to maintain an `ObservableCollection` of per-source progress models, with thread-safe updates.
-- [ ] **7.4:** Redesign `LiveScanView.xaml` to display a virtualized, real-time list of source progress bars, event counts, and status icons.
-- [ ] **7.5:** Reuse the icon and color mapping from `ResultsView.xaml` for status consistency (Success: green check, Partial: orange line, Failed: red cross, default: gray dot).
-- [ ] **7.6:** Show a progress bar only when the total event count is known, otherwise display a spinner or "scanning" message.
-- [ ] **7.7:** Ensure UI remains responsive and performant with many sources (virtualization, efficient binding).
-- [ ] **7.8:** Add a setting to configure progress update frequency (real-time vs. batched).
-- [ ] **7.9:** Update documentation and changelog to reflect the new progress UI.
 ### Phase 6: Final Polish & Release Readiness
 
 -   [ ] **6.1:** Implement "Export to CSV" functionality from the `DataGrid`'s context menu.
@@ -80,3 +69,16 @@
 -   [ ] **6.6:** Review and refine all UI text, tooltips, and error messages for clarity.
 -   [ ] **6.7:** Add a simple "About" dialog with version and project information.
 -   [ ] **6.8:** Prepare the final release build.
+
+
+### Phase 7: Enhanced Scan Progress UI (FR-03)
+
+- [x] **7.1:** Define a per-source progress model (source name, event count, status, progress, icon).
+- [x] **7.2:** Refactor `EventLogScannerService` to report per-source progress updates, supporting configurable update frequency.
+- [x] **7.3:** Update `LiveScanViewModel` to maintain an `ObservableCollection` of per-source progress models, with thread-safe updates.
+- [x] **7.4:** Redesign `LiveScanView.xaml` to display a virtualized, real-time list of source progress bars, event counts, and status icons.
+- [x] **7.5:** Reuse the icon and color mapping from `ResultsView.xaml` for status consistency (Success: green check, Partial: orange line, Failed: red cross, default: gray dot).
+- [x] **7.6:** Show a progress bar only when the total event count is known, otherwise display a spinner or "scanning" message.
+- [x] **7.7:** Ensure UI remains responsive and performant with many sources (virtualization, efficient binding).
+- [x] **7.8:** Add a setting to configure progress update frequency (real-time vs. batched).
+- [x] **7.9:** Update documentation and changelog to reflect the new progress UI.
