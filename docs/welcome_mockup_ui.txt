@@ -1,0 +1,26 @@
+Welcome Page UI Mockup (Textual Sketch)
+=======================================
+
+[ Janus Logo ]      Project Janus
+[ Tagline: "Unified Windows Event Diagnostics" ]
+
+----------------------------------------------------------
+|                                                        |
+|   [ New Live Scan ]   [ Open Snapshot... ]              |
+|   (with icons, in a card/panel, spaced horizontally)    |
+|                                                        |
+|   Need help? See the docs or try a sample snapshot.     |
+----------------------------------------------------------
+
+----------------------------------------------------------
+| Recent Snapshots      | Snapshot Details                |
+|-----------------------|---------------------------------|
+| [list, or illustration/message if empty]                |
+|                       | [details for selected snapshot] |
+|                       | [Load Snapshot button]          |
+----------------------------------------------------------
+
+- Background: Subtle blue gradient or pattern
+- All panels/cards: Rounded corners, light shadow, modern palette
+- Empty state: Friendly illustration/message if no recent snapshots
+- Accessibility: High contrast, readable fonts, keyboard navigation

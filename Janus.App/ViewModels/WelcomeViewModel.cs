@@ -95,8 +95,13 @@ public class WelcomeViewModel : INotifyPropertyChanged {
       if (!File.Exists(path)) {
         continue;
       }
-
       RecentSnapshots.Add(new RecentSnapshotInfo { FilePath = path });
+    }
+    // Set default selection to first item if available
+    if (RecentSnapshots.Count > 0) {
+      SelectedRecentSnapshot = RecentSnapshots[0];
+    } else {
+      SelectedRecentSnapshot = null;
     }
   }
 
