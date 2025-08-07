@@ -27,7 +27,6 @@
         </Canvas>
       </Viewbox>
     </ControlTemplate>
-    
 
     <Style x:Key="AnimatedGlowButtonStyle" TargetType="Button">
       <!-- Default property values -->
