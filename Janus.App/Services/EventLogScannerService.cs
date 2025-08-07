@@ -29,14 +29,19 @@ public class EventLogScannerService
   /// <param name="window">The time window (before and after timestamp).</param>
   /// <param name="progress">Progress reporter for scan status and event count.</param>
   /// <param name="cancellationToken">Cancellation token for scan operation.</param>
+  /// <param name="progressUpdateInterval">Throttle progress reporting to this interval. Default is 250ms.</param>
+  /// <param name="progressUpdateEventCount">Throttle progress reporting to this number of events.</param>
   /// <returns>List of EventLogEntry objects found.</returns>
   public static async Task<ScanResult> ScanAllLogsAsync(
       DateTime timestamp,
       TimeSpan before,
       TimeSpan after,
       IProgress<Janus.App.SourceScanProgress>? perSourceProgress,
-      CancellationToken cancellationToken)
+      CancellationToken cancellationToken,
+      TimeSpan? progressUpdateInterval = null,
+      int progressUpdateEventCount = 250)
   {
+    progressUpdateInterval ??= TimeSpan.FromMilliseconds(250);
     var session = EventLogSession.GlobalSession;
     var logNames = session.GetLogNames();
     var entries = new List<EventLogEntry>();
@@ -53,11 +58,12 @@ public class EventLogScannerService
         ScanStatus status = ScanStatus.Success;
         bool isTotalKnown = false;
         int? totalEvents = null;
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        int eventsSinceLastReport = 0;
         try {
           cancellationToken.ThrowIfCancellationRequested();
           var xpath = $"*[System[TimeCreated[@SystemTime>='{from:O}' and @SystemTime<='{to:O}']]]";
           using var reader = new EventLogReader(new EventLogQuery(logName, PathType.LogName, xpath));
-          // No way to know total events in advance, so isTotalKnown = false
           for (EventRecord? record = reader.ReadEvent(); record is not null; record = reader.ReadEvent()) {
             cancellationToken.ThrowIfCancellationRequested();
             var entry = new EventLogEntry {
@@ -77,15 +83,23 @@ public class EventLogScannerService
               sourceEventCount++;
               Interlocked.Increment(ref eventCount);
             }
-            perSourceProgress?.Report(new Janus.App.SourceScanProgress {
-              SourceName = logName,
-              EventsRetrieved = sourceEventCount,
-              Status = status,
-              IsTotalKnown = isTotalKnown,
-              TotalEvents = totalEvents,
-              IsActive = true,
-              ExceptionMessage = null
-            });
+            eventsSinceLastReport++;
+            bool shouldReport =
+              eventsSinceLastReport >= progressUpdateEventCount ||
+              stopwatch.Elapsed >= progressUpdateInterval.Value;
+            if (shouldReport) {
+              perSourceProgress?.Report(new Janus.App.SourceScanProgress {
+                SourceName = logName,
+                EventsRetrieved = sourceEventCount,
+                Status = status,
+                IsTotalKnown = isTotalKnown,
+                TotalEvents = totalEvents,
+                IsActive = true,
+                ExceptionMessage = null
+              });
+              stopwatch.Restart();
+              eventsSinceLastReport = 0;
+            }
           }
         } catch (EventLogException ex) {
           status = ScanStatus.Failed;
