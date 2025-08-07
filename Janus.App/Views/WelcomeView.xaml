@@ -30,10 +30,10 @@
 
               <Border.Effect>
                 <DropShadowEffect x:Name="GlowEffect"
-                                          Color="#a3c9f7"
-                                          BlurRadius="20"
-                                          ShadowDepth="0"
-                                          Opacity="0.9"
+                                          Color="#d319f7"
+                                          ShadowDepth="1.5"
+                                          BlurRadius="10"
+                                          Opacity="1"
                                           Direction="0"/>
               </Border.Effect>
 
@@ -46,9 +46,8 @@
                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
             </Border>
 
-            <!-- THE KEY CHANGE: Use a DataTrigger inside the ControlTemplate.
-                     This is the most robust way to start an animation on a template part. -->
             <ControlTemplate.Triggers>
+              <!-- This trigger correctly starts and stops the animation. -->
               <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Self}}" Value="True">
                 <DataTrigger.EnterActions>
                   <BeginStoryboard Name="GlowAnimation">
@@ -57,7 +56,7 @@
                                                      Storyboard.TargetProperty="Direction"
                                                      From="0"
                                                      To="360"
-                                                     Duration="0:0:3"/>
+                                                     Duration="0:0:59"/>
                     </Storyboard>
                   </BeginStoryboard>
                 </DataTrigger.EnterActions>
@@ -70,7 +69,7 @@
         </Setter.Value>
       </Setter>
 
-      <!-- Style triggers for visual state changes remain separate and cleaner. -->
+      <!-- Style triggers for visual state changes -->
       <Style.Triggers>
         <Trigger Property="IsMouseOver" Value="True">
           <Setter Property="Background" Value="#e9eef3"/>
