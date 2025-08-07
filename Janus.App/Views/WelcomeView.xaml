@@ -4,7 +4,88 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="600">
+            d:DesignHeight="300" d:DesignWidth="600">
+
+  <UserControl.Resources>
+    <Style x:Key="AnimatedGlowButtonStyle" TargetType="Button">
+      <!-- Default property values -->
+      <Setter Property="Background" Value="#f3f5f7"/>
+      <Setter Property="Foreground" Value="#222"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="BorderBrush" Value="#b0b4b8"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Width" Value="200"/>
+      <Setter Property="Height" Value="44"/>
+
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="border"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="3"
+                        SnapsToDevicePixels="True">
+
+              <Border.Effect>
+                <DropShadowEffect x:Name="GlowEffect"
+                                          Color="#a3c9f7"
+                                          BlurRadius="20"
+                                          ShadowDepth="0"
+                                          Opacity="0.9"
+                                          Direction="0"/>
+              </Border.Effect>
+
+              <ContentPresenter x:Name="contentPresenter"
+                                      Focusable="False"
+                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      Margin="{TemplateBinding Padding}"
+                                      RecognizesAccessKey="True"
+                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+            </Border>
+
+            <!-- THE KEY CHANGE: Use a DataTrigger inside the ControlTemplate.
+                     This is the most robust way to start an animation on a template part. -->
+            <ControlTemplate.Triggers>
+              <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Self}}" Value="True">
+                <DataTrigger.EnterActions>
+                  <BeginStoryboard Name="GlowAnimation">
+                    <Storyboard RepeatBehavior="Forever">
+                      <DoubleAnimation Storyboard.TargetName="GlowEffect"
+                                                     Storyboard.TargetProperty="Direction"
+                                                     From="0"
+                                                     To="360"
+                                                     Duration="0:0:3"/>
+                    </Storyboard>
+                  </BeginStoryboard>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="GlowAnimation"/>
+                </DataTrigger.ExitActions>
+              </DataTrigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+
+      <!-- Style triggers for visual state changes remain separate and cleaner. -->
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Background" Value="#e9eef3"/>
+          <Setter Property="BorderBrush" Value="#a0a4a8"/>
+        </Trigger>
+        <Trigger Property="IsPressed" Value="True">
+          <Setter Property="Background" Value="#dfe4e8"/>
+          <Setter Property="BorderBrush" Value="#808488"/>
+        </Trigger>
+        <Trigger Property="IsEnabled" Value="False">
+          <Setter Property="Opacity" Value="0.7"/>
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+  </UserControl.Resources>
   <Grid>
     <Grid.Background>
       <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -53,11 +134,11 @@
       <!-- Action Card Left-Aligned -->
       <Border Padding="24" Background="#fafbfc" BorderBrush="#e5e8eb" BorderThickness="1" Width="260" VerticalAlignment="Top">
         <StackPanel>
-          <Button x:Name="NewScanButton" Content="🟢  New Live Scan" Command="{Binding NewScanCommand}" Width="200" Height="44" Margin="0,0,0,10" IsDefault="True"
-                  Background="#1e90ff" Foreground="White" FontWeight="Bold" BorderBrush="#1e90ff" BorderThickness="1" Cursor="Hand"/>
+          <Button x:Name="NewScanButton" Content="New Live Scan" Command="{Binding NewScanCommand}" Margin="0,0,0,10" IsDefault="True"
+                  Style="{StaticResource AnimatedGlowButtonStyle}"/>
           <TextBlock Text="Scan your system for recent events. This is safe and does not change anything." FontSize="12" Foreground="#666" TextWrapping="Wrap" Margin="0,0,0,16"/>
-          <Button Content="📂  Open Snapshot..." Command="{Binding OpenSnapshotCommand}" Width="200" Height="44" Margin="0,0,0,8"
-                  Background="#f7b731" Foreground="#222" FontWeight="Bold" BorderBrush="#f7b731" BorderThickness="1" Cursor="Hand"/>
+          <Button Content="Open Snapshot..." Command="{Binding OpenSnapshotCommand}" Width="200" Height="44" Margin="0,0,0,8"
+                  Background="#f3f5f7" Foreground="#222" FontWeight="Bold" BorderBrush="#b0b4b8" BorderThickness="1" Cursor="Hand"/>
           <TextBlock Text="Open a previously saved snapshot for offline analysis." FontSize="12" Foreground="#666" TextWrapping="Wrap"/>
         </StackPanel>
       </Border>
